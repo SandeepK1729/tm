@@ -1,0 +1,14 @@
+{
+    "builds": [
+        {
+            "src": "transaction_manager/wsgi.py",
+            "use": "@vercel/python"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "transaction_manager/wsgi.py"
+        }
+    ]
+}
