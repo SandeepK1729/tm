@@ -1,0 +1,15 @@
+{% include '../base.html' %}
+
+{% block body %}
+        <h1>{{ group.name }}</h1>
+        <ul>
+            <h5> Members </h5>
+            {% for member in group.get_members %}
+                <li> 
+                    {% if member == user %} You {% else %} {{ member.username }} {% endif %} 
+                    {% if member == group.created_by %} (Owner) {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+        
+{% endblock body %}

@@ -1,0 +1,3 @@
+django
+crispy-bootstrap5
+crispy-bootstrap5

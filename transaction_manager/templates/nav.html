@@ -1,0 +1,68 @@
+<nav class="navbar navbar-expand-lg bg-light mb-4">
+    <div class="container">
+      <a class="navbar-brand fs-4" href="{% url 'home' %}">Transaction Manager</a>
+        <button 
+          class="navbar-toggler" 
+          type="button" 
+          data-bs-toggle="collapse" 
+          data-bs-target="#navbarSupportedContent" 
+          aria-controls="navbarSupportedContent" 
+          aria-expanded="false" 
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          {% comment %} <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'about' %}">About</a>
+          </li> {% endcomment %}
+{% comment %}           
+          {% if user.is_authenticated and user.user_type != 'student' %}
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'departments' %}">Departments</a>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'student details' %}">Student Details</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'acadamic info' %}">Acadamic Info</a>
+          </li>
+          
+          {% endif %} {% endcomment %}
+
+        </ul>
+
+        
+				{% if user.is_authenticated %}
+					<ul class="navbar-nav mr-0 mb-2 mb-lg-0">
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+								{{ user.username }}
+							</a>
+							<ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'password_change' %}">Change Password</a></li>
+                {% if user.is_superuser or user.is_staff %}
+                  <li><a class="dropdown-item" href="admin/" target="_blank">Admin panel</a></li>
+                {% endif %}
+								<!--<li><a href="{% url 'password_reset' %}" class="dropdown-item">Password Reset</a></li>-->
+
+								<li><hr class="dropdown-divider"></li>
+								<li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+							</ul>
+						</li>
+						
+					</ul>
+        {% else %}
+					<div class="form-inline my-2 my-lg-0">
+						<a href="{% url 'login' %}" class="btn btn-outline-success">Login</a>
+						<a href="{% url 'signup' %}" class="btn btn-primary ml-3">Signup</a>
+					</div>
+				{% endif %}
+      </div>
+    </div>
+  </nav>
