@@ -1,3 +1,6 @@
 django
 crispy-bootstrap5
 crispy-bootstrap5
+django-environ
+dj_database_url
+psycopg2
