@@ -1,0 +1,58 @@
+{% include '../base.html' %}
+
+{% block body %}
+
+        <p class="text-primary">Total amount spend by group is {{ total }}</p>
+        
+        {% if total != 0 %}
+            <p class="text-success">Monthly Split per member is {{ split }}</p>
+        
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="text-center" rowspan="2">Member</th>
+                        <th class="text-center" colspan="3">Amount</th>
+                    </tr>
+                    <tr>
+                        <th class="text-center" >Spend</th>
+                        <th class="text-center" >Get</th>
+                        <th class="text-center" >Pay</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                        <tr>
+                            {% for col in row %}
+                                <td class="text-center" scope="row"> {{ col }} </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-danger"> No transactions to split amount </p>
+        {% endif %}
+
+
+        <br><br>
+        <br><br>
+        <form>
+            <h1>Filter</h1>
+            <label class="w-10" for="start_point">From</label>
+            <input class="w-30" name="start_point" id="start_point" type="date"></input>
+            <br>
+            <label class="w-10" for="stop_point">To</label>
+            <input class="w-30" name="stop_point" id="stop_point"   type="date"></input>
+            <br>
+            <input class="btn btn-secondary mt-2 w-30" type="submit" value="enter"/>
+        </form>
+        
+        <script> 
+            let today = new Date().toISOString().split('T')[0];
+        
+            $("#stop_point").val("{{ stop_point }}");
+            $("#start_point").val("{{ start_point }}");
+
+        </script>
+{% endblock body %}
+

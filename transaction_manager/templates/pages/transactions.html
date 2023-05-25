@@ -1,0 +1,107 @@
+{% include '../base.html' %}
+
+{% block body %}
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>For</th>
+                    <th>
+                        <label for="username">By</label>
+                        <select class="" name="username" id="username" autofocus>
+                            <option value="*" class="text-center">All users</option>
+                            {% for member in group.get_members %}
+                                <option value="{{ member.username }}"  class="text-center">{{ member.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </th>
+                    <th>To</th>
+                    <th>Amount</th>
+                    <th>
+                        <label class="w-10" for="start_point">From</label>
+                        <input class="w-30" name="start_point" id="start_point" type="date"></input>
+                        <br>
+                        <label class="w-10" for="stop_point">To</label>
+                        <input class="w-30" name="stop_point" id="stop_point"   type="date"></input>
+
+                    </th>
+                </tr>
+            </thead>
+            <tbody id = "transactions_list">
+            </tbody>
+        </table>
+
+    
+    <script>
+        let today = new Date().toISOString().split('T')[0];
+        
+        $("#stop_point").val(today);
+        $("#start_point").val(today.substr(0, 8) + "01");
+
+        function load_data(username, start_point, stop_point) {
+            fetch(`{% url 'transactions api' group.id %}?username=${username}&start_date=${start_point}&stop_date=${stop_point}`)
+            .then(res => res.json())
+            .then(res => {
+                $("#transactions_list").html(``);
+                {% comment %} `
+                    <form action="{% url 'transactions' group.id %}" method="post">
+                        <td class="p-auto"><input class="border" type="text" name="for" scope="row"/></td>
+                        <td><select class="" name="username" id="username" autofocus>
+                            {% for member in group.get_members %}
+                                <option value="{{ member.username }}"  class="text-center">{{ member.username }}</option>
+                            {% endfor %}
+                        </select></td>
+                        <td><input class="border" type="text" name="to" scope="row"/></td>
+                        <td><input class="border" type="text" name="amount" scope="row"/></td>
+                        <td><input class="border" type="submit" value="add transacion"/></td>
+                    </form>
+                `); {% endcomment %}
+
+                for(var i = 0; i < res.length; i++) {
+                    console.log(res[i]);
+                    
+                    var tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td scope="row"> ${res[i].fields.transaction_for} </td>
+                        <td> ${res[i].fields.by} </td>
+                        <td> ${res[i].fields.to} </td>
+                        <td> ${res[i].fields.amount} </td>
+                        <td> ${res[i].fields.on.substr(8, 2)}-${res[i].fields.on.substr(5, 2)}-${res[i].fields.on.substr(0, 4)} </td>
+                    `;
+
+                    $("#transactions_list").append(tr);
+                }
+
+                if(res.length == 0) {
+                    $("#transactions_list").append(`No transactions found..`);
+                }
+            });
+        }
+
+        
+        function on_filtering() {
+            let username = $("#username").val();
+            let start_point = $("#start_point").val();
+            let stop_point = $("#stop_point").val();
+
+            console.log(username);
+            console.log(start_point);
+            console.log(stop_point);
+    
+            load_data(username, start_point, stop_point);
+
+        }
+
+        $("#username").change(on_filtering);
+        $("#start_point").change(on_filtering);
+        $("#stop_point").change(on_filtering);
+        
+        $(function() {
+            console.log( "ready!" );
+            on_filtering();
+         });
+
+    </script>
+        
+{% endblock body %}
+

@@ -1,15 +1,49 @@
 {% include '../base.html' %}
 
 {% block body %}
-        <h1>{{ group.name }}</h1>
-        <ul>
-            <h5> Members </h5>
-            {% for member in group.get_members %}
-                <li> 
-                    {% if member == user %} You {% else %} {{ member.username }} {% endif %} 
-                    {% if member == group.created_by %} (Owner) {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
+<div class="align-items-center ">
+    <div class="col-6 mx-auto">
+        <div class="card p-4 col d-flex justify-content-center">
+            <h1>{{ group.name }}</h1>
+
+            <div  class="card-body ">
+                <div class="card-title"> Members </div>
+                <div class="card-text">
+                    <ul class="list-group">
+                        {% for member in group.get_members %}
+                            <div>
+                                <li  class="list-group-item w-50 m-0 d-flex justify-content-center d-inline "> 
+                                    {% if member == user %} You {% else %} {{ member.username }} {% endif %} 
+                                    {% if member == group.created_by %} (Owner) {% endif %}
+                                    
+                                    {% comment %} {% if user == group.created_by and member != user %} 
+                                        <a class="d-inline w-10 btn btn-secondary" href="{% url 'remove group member' group.id member.username %}">
+                                            X
+                                        </a>
+                                    {% endif %} {% endcomment %}
+                                </li>
+                                
+                            </div>
+                        {% endfor %}
+
+                        {% if user == group.created_by %}
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class=" w-50 mt-0">
+                                    <p class="text-danger"> {{ message }} </p>
+                                    <input type="text" class="text-center form-control list-group-item" name="username" id="username" aria-describedby="helpId" placeholder="list of usernames">
+                                    <span class="input-group-btn" style="width:0px;"></span>
+        
+                                    <input class="form-control" type="submit" value="Add member">
+                                </div>
+                            </form>
+                        {% endif %}
+                        
+                    </ul>   
+                </div>     
+            </div>
+        </div>
+    </div>
+</div>
         
 {% endblock body %}

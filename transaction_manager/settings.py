@@ -92,16 +92,15 @@ WSGI_APPLICATION = 'transaction_manager.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
-DATABASES = {
-    'default': {
+dbs = {
+    'local' : {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    },
+    'online' : dj_database_url.parse(env('DATABASE_URL'))
 }
-
 DATABASES = {
-    'default': dj_database_url.parse(env('DATABASE_URL')) # if not DEBUG else sqlitedb
+    'default': dbs[env('DB_type', default = 'online')]
 }
 
 # Password validation
@@ -128,11 +127,14 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
+USE_L10N = True
+
 USE_TZ = True
+
 
 
 # Static files (CSS, JavaScript, Images)

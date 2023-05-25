@@ -13,31 +13,40 @@
           <span class="navbar-toggler-icon"></span>
         </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          {% comment %} <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="{% url 'about' %}">About</a>
-          </li> {% endcomment %}
-{% comment %}           
-          {% if user.is_authenticated and user.user_type != 'student' %}
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="{% url 'departments' %}">Departments</a>
-          </li>
+        {% if user.is_authenticated %}
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+          {% if group %}
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="{% url 'transactions' group.id %}">View Transactions</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="{% url 'add transaction' group.id %}">Add Transaction</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="{% url 'transactions monthly split' group.id %}">Monthly Split</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="{% url 'groups' %}">Groups</a>
+            </li>
           {% else %}
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="{% url 'student details' %}">Student Details</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="{% url 'acadamic info' %}">Acadamic Info</a>
-          </li>
-          
-          {% endif %} {% endcomment %}
+            {% comment %} {% if groups %}
+              
+              <form method="post">
+                <li class="nav-item">
+                  <input class="nav-link active" aria-current="page" type="text" class="form-control" name="group_name" id="group_name" placeholder="name" />
+                </li>
+                <li class="nav-item">
+                  <input class="nav-link active" aria-current="page" type="submit" value="Create Group" class="btn btn-outline-primary">Groups</input>
+                </li>
+              </form>
+              
+            {% endif %} {% endcomment %}
+          {% endif %}
 
         </ul>
+        {% endif %}
 
-        
 				{% if user.is_authenticated %}
 					<ul class="navbar-nav mr-0 mb-2 mb-lg-0">
 						<li class="nav-item dropdown">
@@ -47,7 +56,7 @@
 							<ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="{% url 'password_change' %}">Change Password</a></li>
                 {% if user.is_superuser or user.is_staff %}
-                  <li><a class="dropdown-item" href="admin/" target="_blank">Admin panel</a></li>
+                  <li><a class="dropdown-item" href="/admin/" target="_blank">Admin panel</a></li>
                 {% endif %}
 								<!--<li><a href="{% url 'password_reset' %}" class="dropdown-item">Password Reset</a></li>-->
 

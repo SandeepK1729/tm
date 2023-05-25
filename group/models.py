@@ -3,6 +3,10 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from datetime import date
+from django.utils import timezone
+
+
 class Group(models.Model):
     name    = models.CharField(
                 _("Group Name"),
@@ -28,8 +32,24 @@ class Group(models.Model):
     
     def add_member(self, user):
         user.groups.add(self)
+        user.save()
         
     def add_members(self, users):
         for user in users:
             user.groups.add(self)
+            user.save()
         
+class Transaction(models.Model):
+    """
+        Transaction Model
+    """
+    transaction_for = models.CharField(verbose_name = "for", max_length = 30) #, unique_for_date = True)
+    by              = models.ForeignKey("core.User", on_delete = models.CASCADE)
+    to              = models.CharField(verbose_name = "to" , max_length = 30) #, unique_for_date = True)
+    amount          = models.FloatField()
+    of_group        = models.ForeignKey(Group, on_delete = models.CASCADE, related_name = "transactions")
+    on              = models.DateField(default = timezone.now)
+    
+
+    def __str__(self):
+        return f"transaction for {self.transaction_for} by {self.by} on {self.on} to {self.to} of amount {self.amount}"
