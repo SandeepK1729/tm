@@ -26,9 +26,7 @@
             <li class="nav-item">
               <a class="nav-link active" aria-current="page" href="{% url 'transactions monthly split' group.id %}">Monthly Split</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{% url 'groups' %}">Groups</a>
-            </li>
+            
           {% else %}
             {% comment %} {% if groups %}
               
@@ -43,7 +41,9 @@
               
             {% endif %} {% endcomment %}
           {% endif %}
-
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'groups' %}">Groups</a>
+          </li>
         </ul>
         {% endif %}
 
