@@ -10,6 +10,10 @@ from datetime                       import date
 
 @login_required
 def groups_view(request):
+    if request.method == "POST":
+        group = Group(name = request.POST.get("group_name"), created_by = request.user)
+        group.save()
+        
     return render(request, "pages/groups.html")
 
 @login_required
