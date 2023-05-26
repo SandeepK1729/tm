@@ -140,27 +140,22 @@ def api_group_transactions_view(request, id):
 @login_required
 @group_member_login_required
 def group_transactions_monthly_split(request, group):
-    pass
-
-@login_required
-@group_member_login_required
-def group_transactions_monthly_split(request, group):
 
     # fetch transactions and return
     transactions = Transaction.objects.filter(of_group = group)
 
     # date based filtering on transactions
     # start point
-    start_point = request.GET.get('start_point', '*')
-    start_date  = start_point if start_point != "*" else (date.today().strftime("%Y-%m-%d")[:-2] + "01")
+    start_point = request.GET.get('start_point', date.today().strftime("%Y-%m-%d")[:-2] + "01")
+    start_date  = start_point
     
     if start_point != "*":
         start_point = date(*[int(x) for x in start_point.split('-')])
         transactions = transactions.filter(on__gte=start_point)
     
-    # stop point
-    stop_point  = request.GET.get('stop_point', '*')
-    stop_date   = stop_point if stop_point != "*" else date.today().strftime("%Y-%m-%d")
+    # stop point    
+    stop_point  = request.GET.get('stop_point', date.today().strftime("%Y-%m-%d"))
+    stop_date   = stop_point
 
     if stop_point != "*":
         stop_point = date(*[int(x) for x in stop_point.split('-')])
@@ -192,3 +187,5 @@ def group_transactions_monthly_split(request, group):
         'stop_point' : stop_date,
         'group' : group,
     })
+
+    
