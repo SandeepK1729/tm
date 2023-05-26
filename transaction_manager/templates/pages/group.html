@@ -2,7 +2,7 @@
 
 {% block body %}
 <div class="align-items-center ">
-    <div class="col-10 mx-auto">
+    <div class="col-md-10 col-12">
         <div class="card p-4 d-flex justify-content-center">
             <h1>{{ group.name }}</h1>
 
@@ -12,7 +12,7 @@
                     <ul class="list-group d-flex">
                         {% for member in group.get_members %}
                             <div>
-                                <li class="list-group-item md:w-1/2 mt-0 d-flex justify-content-center d-inline "> 
+                                <li class="list-group-item w-1/5 mt-0 d-flex justify-content-center d-inline "> 
                                     {% if member == user %} You {% else %} {{ member.username }} {% endif %} 
                                     {% if member == group.created_by %} (Owner) {% endif %}
                                     

@@ -167,7 +167,7 @@ def group_transactions_monthly_split(request, group):
         members[transaction.by.username] += transaction.amount
         total_amount += transaction.amount
 
-    each_person_contribution = total_amount / len(members)
+    each_person_contribution = round(total_amount / len(members))
 
     rows = []
     for member, spend in members.items():
