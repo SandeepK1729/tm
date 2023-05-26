@@ -141,6 +141,19 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
+# MEDIA_URL = 'media/'
+
+STATIC_ROOT = BASE_DIR / 'transaction_manager' / 'static'
+
+# MEDIA_ROOT = STATIC_URL / 'media'
+
+ADMIN_MEDIA_URL = STATIC_URL + 'admin/' # admin is now served by staticfiles
+
+
+# STATICFILES_DIRS = [
+#     BASE_DIR / 'static',
+# ]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
