@@ -3,11 +3,11 @@
 {% load crispy_forms_tags %}
 
 {% block body %}
-    <div class="container">
+    <div class="mt-2 container">
         <div class="row justify-content-center">
-            <div class="col-8">
+            <div class="md:col-8 col-12 p-3">
                 <h1>Signup</h1>
-                <form method="post">
+                <form method="post" class="">
                     {% csrf_token %}
                     {{ form|crispy }}
                     <input type="submit" value="Signup" class="btn btn-primary">

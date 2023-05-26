@@ -1,14 +1,14 @@
 {% include '../base.html' %}
 
 {% block body %}
-<div class="align-items-center ">
-    <div class="col-8 mx-auto">
-        <div class="card p-4 col d-flex justify-content-center">
+<div class="container align-items-center">
+    <div class="md:col-8 col-12 mx-auto">
+        <div class="card p-3 col d-flex justify-content-center">
             <h1>Add New Transaction</h1>
 
             <div  class="card-body ">
                 <div class="card-text">
-                     <form action="{% url 'transactions api' group.id %}" method="POST">
+                     <form action="{% url 'transactions api' group.id %}" method="POST" class="d-flex flex-column">
 
                         {% csrf_token %}
                         

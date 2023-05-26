@@ -40,7 +40,7 @@
     </style>
     {% block head %}{% endblock %}
 </head>
-<body class="container" style="background-color: white;">
+<body style="background-color: white;">
     {% if not remove_navbar %}
         {% include 'nav.html' %}
     {% endif %}
@@ -49,11 +49,18 @@
 
     {% endblock %}
 
+    <img src="{% static 'time_loader.gif' %}" alt="can't show" id="loader" class="w-auto h-auto">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
     <script 
         src="https://code.jquery.com/jquery-3.7.0.js" 
         integrity="sha256-JlqSTELeR4TLqP0OG9dxM7yDPqX1ox/HfgiSLBj8+kM=" 
         crossorigin="anonymous"
     ></script>
+
+    <script>
+        $( document ).ready(function() {
+            $("#loader").fadeOut();
+        });
+    </script>
 </body>
 </html>

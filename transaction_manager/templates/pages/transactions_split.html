@@ -1,13 +1,14 @@
 {% include '../base.html' %}
 
 {% block body %}
+    <div class="container">
 
         <p class="text-primary">Total amount spend by group is {{ total }}</p>
         
         {% if total != 0 %}
             <p class="text-success">Monthly Split per member is {{ split }}</p>
         
-            <table class="table">
+            <table class="table table-striped table-hover table-bordered">
                 <thead>
                     <tr>
                         <th class="text-center" rowspan="2">Member</th>
@@ -35,24 +36,33 @@
 
 
         <br><br>
-        <br><br>
-        <form>
+
             <h1>Filter</h1>
+    
             <label class="w-10" for="start_point">From</label>
             <input class="w-30" name="start_point" id="start_point" type="date"></input>
+    
             <br>
+    
             <label class="w-10" for="stop_point">To</label>
             <input class="w-30" name="stop_point" id="stop_point"   type="date"></input>
+    
             <br>
-            <input class="btn btn-secondary mt-2 w-30" type="submit" value="enter"/>
+    
+            {% comment %} <input class="btn btn-secondary mt-2 w-30" type="submit" value="enter"/> {% endcomment %}
         </form>
-        
+    </div>
+
         <script> 
             let today = new Date().toISOString().split('T')[0];
-        
-            $("#stop_point").val("{{ stop_point }}");
-            $("#start_point").val("{{ start_point }}");
+            let e = $("#stop_point"), s = $("#start_point");
 
+            e.val("{{ stop_point }}");
+            s.val("{{ start_point }}");
+            
+            s.on("change", (event) => location.href = `monthly_split?start_point=${s.val()}&stop_point=${e.val()}`);
+            e.on("change", (event) => location.href = `monthly_split?start_point=${s.val()}&stop_point=${e.val()}`);
+            
         </script>
 {% endblock body %}
 

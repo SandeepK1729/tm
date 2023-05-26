@@ -149,9 +149,9 @@ STATIC_ROOT = BASE_DIR / 'transaction_manager' / 'static'
 ADMIN_MEDIA_URL = STATIC_URL + 'admin/' # admin is now served by staticfiles
 
 
-# STATICFILES_DIRS = [
-#     BASE_DIR / 'static',
-# ]
+STATICFILES_DIRS = [
+    BASE_DIR / 'transaction_manager' / 'static_files',
+]
 
 
 # Default primary key field type
