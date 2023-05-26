@@ -10,11 +10,16 @@ from datetime                       import date
 
 @login_required
 def groups_view(request):
+    context = {}
     if request.method == "POST":
-        group = Group(name = request.POST.get("group_name"), created_by = request.user)
-        group.save()
-        
-    return render(request, "pages/groups.html")
+        try:
+            group = Group(name = request.POST.get("group_name"), created_by = request.user)
+            group.save()
+            context['message'] = f"Group named {group.name} created successfully"
+        except Exception as e:
+            context['message'] = f"Group not created, because of {e}"      
+
+    return render(request, "pages/groups.html", context)
 
 @login_required
 @group_member_login_required

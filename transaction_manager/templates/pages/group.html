@@ -2,25 +2,27 @@
 
 {% block body %}
 <div class="align-items-center ">
-    <div class="col-6 mx-auto">
+    <div class="col-8 mx-auto">
         <div class="card p-4 col d-flex justify-content-center">
             <h1>{{ group.name }}</h1>
 
             <div  class="card-body ">
                 <div class="card-title"> Members </div>
                 <div class="card-text">
-                    <ul class="list-group">
+                    <ul class="list-group d-flex">
                         {% for member in group.get_members %}
                             <div>
-                                <li  class="list-group-item w-50 m-0 d-flex justify-content-center d-inline "> 
+                                <li class="list-group-item w-50 m-0 d-flex justify-content-center d-inline "> 
                                     {% if member == user %} You {% else %} {{ member.username }} {% endif %} 
                                     {% if member == group.created_by %} (Owner) {% endif %}
                                     
-                                    {% comment %} {% if user == group.created_by and member != user %} 
-                                        <a class="d-inline w-10 btn btn-secondary" href="{% url 'remove group member' group.id member.username %}">
-                                            X
-                                        </a>
-                                    {% endif %} {% endcomment %}
+                                    {% if user == group.created_by and member != user %} 
+                                        - <span
+                                            onClick="callRemove(this)"
+                                            class="d-flex d-inline w-10" 
+                                            id="{% url 'remove group member' group.id member.username %}"
+                                        >X<span/>
+                                    {% endif %}
                                 </li>
                                 
                             </div>
@@ -45,5 +47,16 @@
         </div>
     </div>
 </div>
+
+<script>
+    function callRemove(e) {
+        console.log(e.id);
+        console.log(location.url)
+        if(confirm("Do you want to remove this member ?")) {
+            location.href = e.id;
+        }
+        
+    }
+</script>
         
 {% endblock body %}

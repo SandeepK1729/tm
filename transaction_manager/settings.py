@@ -95,7 +95,7 @@ WSGI_APPLICATION = 'transaction_manager.wsgi.application'
 dbs = {
     'local' : {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'transaction_manager' / 'db.sqlite3',
     },
     'online' : dj_database_url.parse(env('DATABASE_URL'))
 }

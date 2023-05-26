@@ -62,7 +62,7 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin):
     date_joined     = models.DateTimeField(_("date joined"), default=timezone.now)
     is_staff        = models.BooleanField(
                         _("staff status"),
-                        default = True,
+                        default = False,
                     )
     is_active       = models.BooleanField(
                         _("active"),
