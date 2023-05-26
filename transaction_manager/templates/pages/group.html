@@ -1,48 +1,51 @@
 {% include '../base.html' %}
 
 {% block body %}
-<div class="align-items-center ">
-    <div class="col-md-10 col-12">
-        <div class="card p-4 d-flex justify-content-center">
-            <h1>{{ group.name }}</h1>
+<div class="container">
+    <div class="align-items-center">
+    
+        <div class="col-xl-4 col-md-6 col-12">
+            <div class="card p-4 d-flex justify-content-center">
+                <h1>{{ group.name }}</h1>
 
-            <div  class="card-body ">
-                <div class="card-title"> Members </div>
-                <div class="card-text">
-                    <ul class="list-group d-flex">
-                        {% for member in group.get_members %}
-                            <div>
-                                <li class="list-group-item w-1/5 mt-0 d-flex justify-content-center d-inline "> 
-                                    {% if member == user %} You {% else %} {{ member.username }} {% endif %} 
-                                    {% if member == group.created_by %} (Owner) {% endif %}
+                <div  class="card-body ">
+                    <div class="card-title"> Members </div>
+                    <div class="card-text">
+                        <ul class="list-group d-flex">
+                            {% for member in group.get_members %}
+                                <div>
+                                    <li class="list-group-item mt-0 d-flex justify-content-center d-inline "> 
+                                        {% if member == user %} You {% else %} {{ member.username }} {% endif %} 
+                                        {% if member == group.created_by %} (Owner) {% endif %}
+                                        
+                                        {% comment %} {% if user == group.created_by and member != user %} 
+                                            - <span
+                                                onClick="callRemove(this)"
+                                                class="d-flex d-inline w-10" 
+                                                id="{% url 'remove group member' group.id member.username %}"
+                                            >X<span/>
+                                        {% endif %} {% endcomment %}
+                                    </li>
                                     
-                                    {% if user == group.created_by and member != user %} 
-                                        - <span
-                                            onClick="callRemove(this)"
-                                            class="d-flex d-inline w-10" 
-                                            id="{% url 'remove group member' group.id member.username %}"
-                                        >X<span/>
-                                    {% endif %}
-                                </li>
-                                
-                            </div>
-                        {% endfor %}
-
-                        {% if user == group.created_by %}
-                            <form method="post">
-                                {% csrf_token %}
-                                <div class="md:w-1/2 m-0 ">
-                                    <p class="text-danger mt-4"> {{ message }} </p>
-                                    <input type="text" class="text-center form-control list-group-item" name="username" id="username" aria-describedby="helpId" placeholder="list of usernames">
-                                    <span class="input-group-btn" style="width:0px;"></span>
-        
-                                    <input class="form-control btn btn-outline-secondary" type="submit" value="Add member">
                                 </div>
-                            </form>
-                        {% endif %}
-                        
-                    </ul>   
-                </div>     
+                            {% endfor %}
+
+                            {% if user == group.created_by %}
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <div class="md:w-1/2 m-0 ">
+                                        <p class="text-danger mt-4"> {{ message }} </p>
+                                        <input type="text" class="text-center form-control list-group-item" name="username" id="username" aria-describedby="helpId" placeholder="list of usernames">
+                                        <span class="input-group-btn" style="width:0px;"></span>
+            
+                                        <input class="form-control btn btn-outline-secondary" type="submit" value="Add member">
+                                    </div>
+                                </form>
+                            {% endif %}
+                            
+                        </ul>   
+                    </div>     
+                </div>
             </div>
         </div>
     </div>

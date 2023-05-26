@@ -1,50 +1,52 @@
 {% include '../base.html' %}
 
 {% block body %}
-<div class="container align-items-center">
-    <div class="md:col-8 col-12 mx-auto">
-        <div class="card p-3 col d-flex justify-content-center">
-            <h1>Add New Transaction</h1>
+<div class="container">
+    <div class="align-items-center">
+        <div class="col-xl-4 col-md-6 col-12">
+            <div class="card p-3 col d-flex ">
+                <h1>Add New Transaction</h1>
 
-            <div  class="card-body ">
-                <div class="card-text">
-                     <form action="{% url 'transactions api' group.id %}" method="POST" class="d-flex flex-column">
+                <div  class="card-body ">
+                    <div class="card-text">
+                        <form action="{% url 'transactions api' group.id %}" method="POST" class="d-flex flex-column">
 
-                        {% csrf_token %}
-                        
-                        <div class="form-group">
-                          <label for="for">For</label>
-                          <input type="text" class="form-control"  required autofocus name="for" id="for" placeholder="transaction for">
-                        </div>
-
-                        <div class="form-group mt-2 md-2">
-                            <label for="for">By</label>
+                            {% csrf_token %}
                             
-                            <select  required autofocus class="" name="by" id="by">
-                                {% for member in group.get_members %}
-                                    {% if member != user %}
-                                        <option value="{{ member.username }}"  class="text-center">{{ member.username }}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-  
-                        <div class="form-group">
-                            <label for="to">To</label>
-                            <input type="text"  required autofocus class="form-control" name="to" id="to" placeholder="transaction to">
-                        </div>
+                            <div class="form-group">
+                            <label for="for">For</label>
+                            <input type="text" class="form-control"  required autofocus name="for" id="for" placeholder="transaction for">
+                            </div>
 
-                        <div class="form-group mt-2">
-                            <label for="amount">Amount</label>
-                            <input type="number" required autofocus class="form-control" name="amount" id="amount" placeholder="transaction amount">
-                        </div>
-                        
-                        <input type="submit" value="Add" class="btn btn-outline-primary mt-2 justify-content-center">
-                        
-                </div>     
+                            <div class="form-group mt-2 md-2">
+                                <label for="for">By</label>
+                                
+                                <select  required autofocus class="" name="by" id="by">
+                                    {% for member in group.get_members %}
+                                        {% if member != user %}
+                                            <option value="{{ member.username }}"  class="text-center">{{ member.username }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+    
+                            <div class="form-group">
+                                <label for="to">To</label>
+                                <input type="text"  required autofocus class="form-control" name="to" id="to" placeholder="transaction to">
+                            </div>
+
+                            <div class="form-group mt-2">
+                                <label for="amount">Amount</label>
+                                <input type="number" required autofocus class="form-control" name="amount" id="amount" placeholder="transaction amount">
+                            </div>
+                            
+                            <input type="submit" value="Add" class="btn btn-outline-primary mt-2 justify-content-center">
+                            
+                    </div>     
+                </div>
             </div>
         </div>
     </div>
 </div>
-        
+
 {% endblock body %}
