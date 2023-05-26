@@ -60,6 +60,7 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -152,6 +153,8 @@ ADMIN_MEDIA_URL = STATIC_URL + 'admin/' # admin is now served by staticfiles
 STATICFILES_DIRS = [
     BASE_DIR / 'transaction_manager' / 'static_files',
 ]
+
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"  # new
 
 
 # Default primary key field type
