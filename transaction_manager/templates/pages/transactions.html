@@ -77,7 +77,7 @@
                 }
 
                 if(res.length == 0) {
-                    $("#transactions_list").append(`No transactions found..`);
+                    $("#transactions_list").html(`<tr><td colspan="5" class="text-center">No transactions found..</td></tr>`);
                 }
             });
         }
