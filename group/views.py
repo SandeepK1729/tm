@@ -7,6 +7,7 @@ from .decorators                    import group_member_login_required
 
 from core.models                    import User 
 from datetime                       import date
+from time                           import sleep
 
 @login_required
 def groups_view(request):

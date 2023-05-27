@@ -41,6 +41,8 @@
         $("#start_point").val(today.substr(0, 8) + "01");
 
         function load_data(username, start_point, stop_point) {
+            $("#transactions_list").html(`<tr><td colspan="5" class="text-center">loading ... please wait</td></tr>`);
+
             fetch(`{% url 'transactions api' group.id %}?username=${username}&start_date=${start_point}&stop_date=${stop_point}`)
             .then(res => res.json())
             .then(res => {
