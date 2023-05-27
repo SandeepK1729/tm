@@ -108,3 +108,6 @@ If you have any questions, suggestions, or issues, please contact the project ma
 ### Version 1.7.0
 - added few UI improvements
 - added loading animation
+#### 1.7.1
+- made changes to the loading animation
+- added few UI improvements

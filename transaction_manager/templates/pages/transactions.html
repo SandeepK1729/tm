@@ -2,34 +2,36 @@
 
 {% block body %}
     <div class="container">
-        <table class="table table-striped table-hover table">
-            <thead>
-                <tr>
-                    <th>For</th>
-                    <th>
-                        <label for="username">By</label>
-                        <select class="" name="username" id="username" autofocus>
-                            <option value="*" class="text-center">All users</option>
-                            {% for member in group.get_members %}
-                                <option value="{{ member.username }}"  class="text-center">{{ member.username }}</option>
-                            {% endfor %}
-                        </select>
-                    </th>
-                    <th>To</th>
-                    <th>Amount</th>
-                    <th>
-                        <label class="w-10" for="start_point">From</label>
-                        <input class="w-30" name="start_point" id="start_point" type="date"></input>
-                        <br>
-                        <label class="w-10" for="stop_point">To</label>
-                        <input class="w-30" name="stop_point" id="stop_point"   type="date"></input>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table">
+                <thead>
+                    <tr>
+                        <th>For</th>
+                        <th>
+                            <label for="username">By</label>
+                            <select class="" name="username" id="username" autofocus class="rounded">
+                                <option value="*" class="text-center">All users</option>
+                                {% for member in group.get_members %}
+                                    <option value="{{ member.username }}"  class="text-center">{{ member.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </th>
+                        <th>To</th>
+                        <th>Amount</th>
+                        <th>
+                            <label class="w-10" for="start_point">From</label>
+                            <input class="w-30" name="start_point" id="start_point" type="date"></input>
+                            <br>
+                            <label class="w-10" for="stop_point">To</label>
+                            <input class="w-30" name="stop_point" id="stop_point"   type="date"></input>
 
-                    </th>
-                </tr>
-            </thead>
-            <tbody id = "transactions_list">
-            </tbody>
-        </table>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id = "transactions_list">
+                </tbody>
+            </table>
+        </div>
     </div>
     
     <script>
