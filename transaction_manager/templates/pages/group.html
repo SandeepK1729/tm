@@ -33,7 +33,7 @@
                             {% if user == group.created_by %}
                                 <form method="post">
                                     {% csrf_token %}
-                                    <div class="md:w-1/2 md-1">
+                                    <div class="w-100">
                                         <p class="text-danger mt-4"> {{ message }} </p>
                                         <input type="text" class="text-center form-control list-group-item" name="username" id="username" aria-describedby="helpId" placeholder="list of usernames">
                                         <span class="input-group-btn" style="width:0px;"></span>
