@@ -14,7 +14,10 @@
                             {{ form|crispy }}
                             <input type="submit" value="login" class="mt-2 btn btn-primary">
                         </form>
+                        
                         <p>Don't Have An Account ..? <a class="btn btn-secondary-outline" href={% url 'signup' %}>Sign Up</a></p>
+                        <p>Don't you remeber password ..? <a class="btn btn-secondary-outline" href={% url 'password_reset' %}>Forgot Password</a></p>
+                        
                     </div>
                 </div>
             </div>
