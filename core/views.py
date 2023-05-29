@@ -27,4 +27,4 @@ def signup(request):
 
 @login_required
 def about(request):
-    return HttpResponse("about.html")
+    return render(request, "about.html")
