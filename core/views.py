@@ -5,11 +5,12 @@ from django.contrib.auth.decorators     import login_required
 from .models    import User
 from .forms     import UserCreationForm
 
+
 from django.shortcuts import HttpResponse
 
-# @login_required
+@login_required
 def home(request):
-    auth_login(request, User.objects.get(username='Sandeep7'))
+    auth_login(request, User)
     return render(request, 'pages/home.html')
 
 def signup(request):

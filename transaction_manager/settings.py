@@ -144,14 +144,14 @@ USE_TZ = True
 STATIC_URL = 'static/'
 # MEDIA_URL = 'media/'
 
-STATIC_ROOT = BASE_DIR / 'transaction_manager' / 'static'
+STATIC_ROOT = BASE_DIR / 'transaction_manager' / 'static_cdn'
 # MEDIA_ROOT = STATIC_URL / 'media'
 
 ADMIN_MEDIA_URL = STATIC_URL + 'admin/' # admin is now served by staticfiles
 
 
 STATICFILES_DIRS = [
-    BASE_DIR / 'transaction_manager' / 'static_files',
+    BASE_DIR / 'transaction_manager' / STATIC_URL,
 ]
 
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"  # new
