@@ -9,6 +9,7 @@ from django.shortcuts import HttpResponse
 
 @login_required
 def home(request):
+    print(request)
     return render(request, 'pages/home.html')
 
 def signup(request):
@@ -23,8 +24,9 @@ def signup(request):
 
     return render(request, 'registration/signup.html', {
         'form' : form,
+        'title' : 'Sign up',
     })
 
-@login_required
+
 def about(request):
-    return render(request, "about.html")
+    return render(request, "pages/about.html", {'title' : 'About'})

@@ -11,7 +11,9 @@ from time                           import sleep
 
 @login_required
 def groups_view(request):
-    context = {}
+    context = {
+        'title' : "Groups",
+    }
     if request.method == "POST":
         try:
             group = Group(name = request.POST.get("group_name"), created_by = request.user)
@@ -30,6 +32,7 @@ def group_view(request, group):
         'not_exist' : [],
         'already_exist' : [],
         'added' : [],
+        'title' : group.name,
     }
 
     if request.method == "POST":
@@ -78,6 +81,7 @@ def remove_group_member(request, group, username):
 def group_transactions_view(request, group):
     return render(request, 'pages/transactions.html', {
         'group' : group,
+        'title' : f'{group.name} Group Transactions'    
     })
 
 @login_required
@@ -85,6 +89,7 @@ def group_transactions_view(request, group):
 def add_group_transaction_view(request, group):
     return render(request, 'pages/add_transaction.html', {
         'group' : group,
+        'title' : f'Add Transaction in {group.name} Group'
     })
 
 def api_group_transactions_view(request, id):
@@ -190,6 +195,7 @@ def group_transactions_monthly_split(request, group):
         'start_point' : start_date,
         'stop_point' : stop_date,
         'group' : group,
+        'title' : f'{group.name} Group Transactions Split'
     })
 
     
