@@ -32,7 +32,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '127.0.0.1',
     '.vercel.app',
-    'all-go-rythm.software'
+    '.all-go-rythm.software'
 ]
 
 
