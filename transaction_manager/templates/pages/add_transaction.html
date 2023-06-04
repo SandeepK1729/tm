@@ -25,6 +25,8 @@
                                     {% for member in group.get_members %}
                                         {% if member != user %}
                                             <option value="{{ member.username }}"  class="text-center">{{ member.username }}</option>
+                                        {% else %}
+                                            <option value="{{ user.username }}"    class="text-center"> You </option>    
                                         {% endif %}
                                     {% endfor %}
                                 </select>

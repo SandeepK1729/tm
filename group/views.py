@@ -89,7 +89,8 @@ def group_transactions_view(request, group):
 def add_group_transaction_view(request, group):
     return render(request, 'pages/add_transaction.html', {
         'group' : group,
-        'title' : f'Add Transaction in {group.name} Group'
+        'title' : f'Add Transaction in {group.name} Group',
+        'is_individual_group' : len(group.get_members) == 1
     })
 
 def api_group_transactions_view(request, id):
