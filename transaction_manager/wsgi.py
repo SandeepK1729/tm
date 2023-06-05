@@ -15,8 +15,4 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'transaction_manager.settings')
 
 application = get_wsgi_application()
 
-# import whitenoise
-
-# application = whitenoise.django.DjangoWhiteNoise(application)
-
 app = application
