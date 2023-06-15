@@ -1,4 +1,4 @@
-from django.shortcuts               import render, HttpResponse, redirect
+from django.shortcuts               import render, HttpResponse, redirect, reverse
 from django.contrib.auth.decorators import login_required
 from django.core                    import serializers
 
@@ -16,7 +16,7 @@ def groups_view(request):
     }
     if request.method == "POST":
         try:
-            group = Group(name = request.POST.get("group_name"), created_by = request.user)
+            group = Group(name = request.POST.get("group_name"), created_by = request.user).order_by('-id')
             group.save()
             context['message'] = f"Group named {group.name} created successfully"
         except Exception as e:
@@ -90,24 +90,28 @@ def add_group_transaction_view(request, group):
     return render(request, 'pages/add_transaction.html', {
         'group' : group,
         'title' : f'Add Transaction in {group.name} Group',
-        'is_individual_group' : len(group.get_members) == 1
+        'is_individual_group' : len(group.get_members) == 1,
+        'transaction' : Transaction.objects.filter(id = request.GET.get('id')).first() if "id" in request.GET else None,
     })
 
 def api_group_transactions_view(request, id):
     group = Group.objects.get(id = id)
 
     if request.method == "POST":
+        transaction_id = int(request.POST.get("id", "0"))
+        
+        transaction = Transaction() if transaction_id == 0 else Transaction.objects.get(id = transaction_id)
+        
+        transaction.transaction_for = request.POST.get("for")
+        transaction.by              = User.objects.get(username = request.POST.get("by"))
+        transaction.to              = request.POST.get("to")
+        transaction.of_group        = group
+        transaction.amount          = request.POST.get("amount")
+        transaction.on              = request.POST.get("on")
 
-        transaction = Transaction(
-            transaction_for = request.POST.get("for"),
-            by              = User.objects.get(username = request.POST.get("by")),
-            to              = request.POST.get("to"),
-            of_group        = group,
-            amount          = request.POST.get("amount"),
-        )
         transaction.save()
 
-        return redirect(f"/group/{group.id}/transactions")
+        return redirect(to = f'/group/{group.id}/transactions')
 
     try:
 

@@ -24,7 +24,7 @@ class Group(models.Model):
 
     @property
     def get_members(self):
-        return [x for x in self.members.all()]
+        return [x for x in self.members.all().order_by('id')]
     
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -43,10 +43,10 @@ class Transaction(models.Model):
     """
         Transaction Model
     """
-    transaction_for = models.CharField(verbose_name = "for", max_length = 30) #, unique_for_date = True)
+    transaction_for = models.CharField(verbose_name = "for", max_length = 60) #, unique_for_date = True)
     by              = models.ForeignKey("core.User", on_delete = models.CASCADE)
-    to              = models.CharField(verbose_name = "to" , max_length = 30) #, unique_for_date = True)
-    amount          = models.FloatField()
+    to              = models.CharField(verbose_name = "to" , max_length = 60) #, unique_for_date = True)
+    amount          = models.IntegerField()
     of_group        = models.ForeignKey(Group, on_delete = models.CASCADE, related_name = "transactions")
     on              = models.DateField(default = timezone.now)
     
