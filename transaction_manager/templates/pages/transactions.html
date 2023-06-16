@@ -26,6 +26,9 @@
                             <input class="w-30" name="stop_point" id="stop_point"   type="date"></input>
 
                         </th>
+                        <th>
+                            Options <button class="btn btn-light w-10" type="text" onclick="on_filtering()"><i class="fa-solid fa-rotate"></i></button>
+                        </th>
                     </tr>
                 </thead>
                 <tbody id = "transactions_list">
@@ -40,8 +43,9 @@
         $("#stop_point").val(today);
         $("#start_point").val(today.substr(0, 8) + "01");
 
+        
         function load_data(username, start_point, stop_point) {
-            $("#transactions_list").html(`<tr><td colspan="5" class="text-center">loading ... please wait</td></tr>`);
+            $("#transactions_list").html(`<tr><td colspan="6" class="text-center">loading ... please wait</td></tr>`);
 
             fetch(`{% url 'transactions api' group.id %}?username=${username}&start_date=${start_point}&stop_date=${stop_point}`)
             .then(res => res.json())
@@ -71,17 +75,18 @@
                         <td> ${res[i].fields.to} </td>
                         <td> ${res[i].fields.amount} </td>
                         <td> ${res[i].fields.on.substr(8, 2)}-${res[i].fields.on.substr(5, 2)}-${res[i].fields.on.substr(0, 4)} </td>
+                        
+
                     `;
 
                     $("#transactions_list").append(tr);
                 }
 
                 if(res.length == 0) {
-                    $("#transactions_list").html(`<tr><td colspan="5" class="text-center">No transactions found..</td></tr>`);
+                    $("#transactions_list").html(`<tr><td colspan="6" class="text-center">No transactions found..</td></tr>`);
                 }
             });
         }
-
         
         function on_filtering() {
             let username = $("#username").val();

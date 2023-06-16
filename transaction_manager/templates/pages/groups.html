@@ -4,13 +4,13 @@
   <div class="container">
       <h1>Groups</h1><br>
 
-      <form method="post" style="display:flex; flex-wrap:wrap; ">
+      <form method="post" style="display:flex; flex-wrap:wrap;gap:3px;">
         {% csrf_token %}
-        <div class="form-group w-48 mt-1 mr-1">
-          {% comment %} <label for="group_name">Group Name</label> {% endcomment %}
+        <div class="form-group w-48">
           <input required type="text" class="form-control" name="group_name" id="group_name" placeholder="Group Name">
         </div>
-        <input type="submit" value="Create Group" class="mt-1 w-48  btn btn-outline-primary"/>
+        <input type="submit" value="Create Group" class="w-48 btn btn-outline-primary"/>
+      
       </form>
       
 
