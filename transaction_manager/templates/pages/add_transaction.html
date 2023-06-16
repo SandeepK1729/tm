@@ -12,7 +12,7 @@
                         <form action="{% url 'transactions api' group.id %}" method="POST" class="d-flex flex-column">
 
                             <div class="form-group">
-                                <input type="hidden" class="form-control" name="id" id="id" value="{{ transaction.id }}">
+                                <input type="hidden" class="form-control" name="transaction_id" id="transaction_id" value="{% if transacion %}{{ transaction.id }}{% else %}0{% endif %}">
                             </div>
                             {% csrf_token %}
                             

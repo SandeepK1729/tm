@@ -98,7 +98,7 @@ def api_group_transactions_view(request, id):
     group = Group.objects.get(id = id)
 
     if request.method == "POST":
-        transaction_id = int(request.POST.get("id", "0"))
+        transaction_id = int(request.POST.get("transaction_id"))
         
         transaction = Transaction() if transaction_id == 0 else Transaction.objects.get(id = transaction_id)
         
