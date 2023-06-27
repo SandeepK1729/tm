@@ -108,7 +108,7 @@ def api_group_transactions_view(request, id):
         transaction.of_group        = group
         transaction.amount          = request.POST.get("amount")
         transaction.on              = request.POST.get("on")
-
+        transaction.added_by        = request.user
         transaction.save()
 
         return redirect(to = f'/group/{group.id}/transactions')

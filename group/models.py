@@ -50,12 +50,12 @@ class Transaction(models.Model):
         Transaction Model
     """
     transaction_for = models.CharField(verbose_name = "for", max_length = 60) 
-    by              = models.ForeignKey("core.User", on_delete = models.CASCADE)
+    by              = models.ForeignKey("core.User", on_delete = models.CASCADE, related_name = "by")
     to              = models.CharField(verbose_name = "to" , max_length = 60) 
     amount          = models.IntegerField()
     of_group        = models.ForeignKey(Group, on_delete = models.CASCADE, related_name = "transactions")
     on              = models.DateField(default = timezone.now)
-    # added           = models.ForeignKey("core.User", on_delete = models.CASCADE) 
+    added_by       = models.ForeignKey("core.User", on_delete = models.CASCADE, related_name = "added_by") 
 
     def __str__(self):
         return f"transaction for {self.transaction_for} by {self.by} on {self.on} to {self.to} of amount {self.amount}"

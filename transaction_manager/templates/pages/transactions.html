@@ -2,12 +2,13 @@
 
 {% block body %}
     <div class="container">
-        <div class="table-responsive">
-            <table class="table table-hover table">
+        <div class="xl-col-8 col-12 row justify-content-center table-responsive">
+            <table class="table table-hover text-center">
                 <thead>
                     <tr>
-                        <th>For</th>
-                        <th>
+                        <th scope="col">Added by</th>
+                        <th scope="col">For</th>
+                        <th scope="col">
                             <label for="username">By</label>
                             <select class="" name="username" id="username" autofocus class="rounded">
                                 <option value="*" class="text-center">All users</option>
@@ -15,10 +16,10 @@
                                     <option value="{{ member.username }}"  class="text-center">{{ member.username }}</option>
                                 {% endfor %}
                             </select>
-                        </th>
-                        <th>To</th>
-                        <th>Amount</th>
-                        <th>
+                        </th scope="col">
+                        <th scope="col">To</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">
                             <label class="w-10" for="start_point">From</label>
                             <input class="w-30" name="start_point" id="start_point" type="date"></input>
                             <br>
@@ -26,7 +27,7 @@
                             <input class="w-30" name="stop_point" id="stop_point"   type="date"></input>
 
                         </th>
-                        <th>
+                        <th scope="col">
                             Options <button class="btn btn-light w-10" type="text" onclick="on_filtering()"><i class="fa-solid fa-rotate"></i></button>
                         </th>
                     </tr>
@@ -45,7 +46,7 @@
 
         
         function load_data(username, start_point, stop_point) {
-            $("#transactions_list").html(`<tr><td colspan="6" class="text-center">loading ... please wait</td></tr>`);
+            $("#transactions_list").html(`<tr><td colspan="7" class="text-center">loading ... please wait</td></tr>`);
 
             fetch(`{% url 'transactions api' group.id %}?username=${username}&start_date=${start_point}&stop_date=${stop_point}`)
             .then(res => res.json())
@@ -66,24 +67,44 @@
                 `); {% endcomment %}
 
                 for(var i = 0; i < res.length; i++) {
-                    console.log(res[i]);
+                    
+                    let is_owner = (res[i].fields.added_by == "{{ user.username }}");
                     
                     var tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td scope="row"> ${res[i].fields.transaction_for} </td>
+                        <td scope="row"> ${ is_owner ? "You" : res[i].fields.added_by} </td>
+                        <td> ${res[i].fields.transaction_for} </td>
                         <td> ${res[i].fields.by} </td>
                         <td> ${res[i].fields.to} </td>
                         <td> ${res[i].fields.amount} </td>
                         <td> ${res[i].fields.on.substr(8, 2)}-${res[i].fields.on.substr(5, 2)}-${res[i].fields.on.substr(0, 4)} </td>
-                        
-
                     `;
+                    if(is_owner) {
+                        tr.innerHTML += `
+                            <td class="d-flex flex-inline" style="gap:1px;">
+                                <a href="{% url 'add transaction' group.id %}?id=${res[i].pk}" class="btn btn-success w-50">
+                                    <i class="fa-regular fa-pen-to-square"></i>
+                                </a>
+                                <form class="w-50" action="{% url 'transactions api' group.id %}" method="DELETE">
+                                    <input type="hidden" name="id" value="${res[i].pk}"/>
+                                    <input type="hidden" name="action" value="delete"/>
+                                    <button class="btn btn-danger w-100" type="submit"> 
+                                        <i class="fa-solid fa-trash"></i>
+                                    <button/>
+                                </form>
+                            </td>
+                        `;
+                    } else {
+                        tr.innerHTML += `
+                            <td></td>
+                        `;
+                    }
 
                     $("#transactions_list").append(tr);
                 }
 
                 if(res.length == 0) {
-                    $("#transactions_list").html(`<tr><td colspan="6" class="text-center">No transactions found..</td></tr>`);
+                    $("#transactions_list").html(`<tr><td colspan="7" class="text-center">No transactions found..</td></tr>`);
                 }
             });
         }
