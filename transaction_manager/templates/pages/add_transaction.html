@@ -1,5 +1,57 @@
 {% extends '../base.html' %}
 
+{% block style %}
+    .checkbox-parent {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        margin-top: 20px;
+        justify-content: space-around;
+    }
+
+    article {
+        position: relative;
+        width: auto;
+        height: 40px;
+        float: left;
+        border: 2px solid #50bcf2;
+        border-radius: 6px;
+        box-sizing: border-box;
+    }
+    
+    article div {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        line-height: 25px;
+        padding: 0 10px;
+        transition: .2s ease;
+    }
+    
+    article input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100px;
+        opacity: 0;
+        cursor: pointer;
+    }
+    
+    input[type=checkbox]:checked ~ div {
+        background-color: #50bcf2;
+        color: #fff;
+    }
+    
+    
+
+{% endblock style %}
+
 {% block body %}
 <div class="container">
     <div class="row justify-content-center align-items-center">
@@ -12,13 +64,14 @@
                         <form action="{% url 'transactions api' group.id %}" method="POST" class="d-flex flex-column">
 
                             <div class="form-group">
-                                <input type="hidden" class="form-control" name="transaction_id" id="transaction_id" value="{% if transacion %}{{ transaction.id }}{% else %}0{% endif %}">
+                                <input type="hidden" class="form-control" name="transaction_id" id="transaction_id" value="{% if transaction %}{{ transaction.id }}{% else %}0{% endif %}">
                             </div>
+
                             {% csrf_token %}
                             
                             <div class="form-group">
-                            <label for="for">For</label>
-                            <input type="text" class="form-control"  required autofocus name="for" id="for" placeholder="transaction for" value="{{ transaction.transaction_for }}">
+                                <label for="for">For</label>
+                                <input type="text" class="form-control"  required autofocus name="for" id="for" placeholder="transaction for" value="{{ transaction.transaction_for }}">
                             </div>
 
                             <div class="form-group mt-2 md-2">
@@ -52,8 +105,34 @@
                                 <input type="number" required autofocus class="form-control" name="amount" id="amount" placeholder="transaction amount" value="{{ transaction.amount }}">
                             </div>
                             
+                            <div class="form-group">
+                                <label for="share_to">Share To</label>
+
+                                <div class="checkbox-parent">
+                                    {% for member in group.get_members %}
+                                        <article>
+                                            <input 
+                                                type="checkbox" 
+                                                name="share_to" 
+                                                id="share_to"
+                                                value="{{ member.username }}"
+                                                {% if member in transaction.share_to.all %}
+                                                        checked
+                                                {% endif %}
+                                            />
+                                            <div>
+                                                <span>
+                                                    {{ member.username }}
+                                                </span>
+                                            </div>
+                                        </article>
+                                    {% endfor %}
+                                </div>
+                                        
+                            </div>   
+
                             <input type="submit" value="{% if transaction %}Update{% else %}Add{% endif %}" class="btn btn-outline-primary mt-2 justify-content-center">
-                            
+                        </form>
                     </div>     
                 </div>
             </div>

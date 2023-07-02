@@ -55,7 +55,8 @@ class Transaction(models.Model):
     amount          = models.IntegerField()
     of_group        = models.ForeignKey(Group, on_delete = models.CASCADE, related_name = "transactions")
     on              = models.DateField(default = timezone.now)
-    added_by       = models.ForeignKey("core.User", on_delete = models.CASCADE, related_name = "added_by") 
+    added_by        = models.ForeignKey("core.User", on_delete = models.CASCADE, related_name = "added_by") 
+    share_to        = models.ManyToManyField("core.User", related_name = "share_to")
 
     def __str__(self):
         return f"transaction for {self.transaction_for} by {self.by} on {self.on} to {self.to} of amount {self.amount}"

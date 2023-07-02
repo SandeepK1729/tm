@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Multi-Selection Example</title>
+  <style>
+    .checkbox-group {
+      display: inline-block;
+    }
+    
+    .checkbox-group label {
+      display: block;
+      margin-bottom: 5px;
+      cursor: pointer;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+      display: none;
+    }
+    
+    .checkbox-group input[type="checkbox"] + span {
+      position: relative;
+      padding-left: 25px;
+      cursor: pointer;
+    }
+    
+    .checkbox-group input[type="checkbox"] + span:before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 2px;
+      width: 18px;
+      height: 18px;
+      border: 2px solid #ccc;
+      background-color: #fff;
+    }
+    
+    .checkbox-group input[type="checkbox"]:checked + span:before {
+      border-color: #2196F3;
+      background-color: #2196F3;
+    }
+  </style>
+</head>
+<body>
+  <h1>Multi-Selection Example</h1>
+  
+  <div class="checkbox-group">
+    <label>
+      <input type="checkbox" name="option1" value="Option 1">
+      <span>Option 1</span>
+    </label>
+    <label>
+      <input type="checkbox" name="option2" value="Option 2">
+      <span>Option 2</span>
+    </label>
+    <label>
+      <input type="checkbox" name="option3" value="Option 3">
+      <span>Option 3</span>
+    </label>
+  </div>
+  
+  <script>
+    // Optional: Add JavaScript code to handle form submission and retrieve selected options
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+      
+      const selectedOptions = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+        .map(checkbox => checkbox.value);
+      
+      console.log('Selected Options:', selectedOptions);
+    });
+  </script>
+</body>
+</html>

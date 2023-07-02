@@ -4,18 +4,19 @@
     <div class="container">
 
         <p class="text-primary">Total amount spend by group is {{ total }}</p>
+        <br>
         
         {% if total != 0 %}
-            <p class="text-success">Monthly Split per member is {{ split }}</p>
             
             <table class="table table-striped table-hover table-bordered table-responsive">
                 <thead>
                     <tr>
                         <th class="text-center" rowspan="2">Member</th>
-                        <th class="text-center" colspan="3">Amount</th>
+                        <th class="text-center" colspan="4">Amount</th>
                     </tr>
                     <tr>
                         <th class="text-center" >Spend</th>
+                        <th class="text-center" >Share</th>
                         <th class="text-center" >Get</th>
                         <th class="text-center" >Pay</th>
                     </tr>

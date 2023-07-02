@@ -98,10 +98,16 @@ def api_group_transactions_view(request, id):
     group = Group.objects.get(id = id)
 
     if request.method == "POST":
+        request_POST = {x : y for x, y in request.POST.lists()}
+        request.POST = request.POST.dict()
+        
         transaction_id = int(request.POST.get("transaction_id"))
-        
         transaction = Transaction() if transaction_id == 0 else Transaction.objects.get(id = transaction_id)
-        
+
+        if request.POST.get("action") == "delete":
+            transaction.delete()
+            return redirect(to = f'/group/{group.id}/transactions')
+
         transaction.transaction_for = request.POST.get("for")
         transaction.by              = User.objects.get(username = request.POST.get("by"))
         transaction.to              = request.POST.get("to")
@@ -111,10 +117,13 @@ def api_group_transactions_view(request, id):
         transaction.added_by        = request.user
         transaction.save()
 
+        transaction.share_to.clear()
+        share_to = [User.objects.get(username = username) for username in request_POST.get("share_to", [])]
+        transaction.share_to.add(*share_to)
+
         return redirect(to = f'/group/{group.id}/transactions')
 
     try:
-
         # fetch transactions and return
         transactions = Transaction.objects.filter(of_group = group)
 
@@ -156,7 +165,7 @@ def api_group_transactions_view(request, id):
 def group_transactions_monthly_split(request, group):
 
     # fetch transactions and return
-    transactions = Transaction.objects.filter(of_group = group)
+    transactions = group.transactions.all()
 
     # date based filtering on transactions
     # start point
@@ -175,27 +184,35 @@ def group_transactions_monthly_split(request, group):
         stop_point = date(*[int(x) for x in stop_point.split('-')])
         transactions = transactions.filter(on__lte=stop_point)
         
-    members = { member.username : 0 for member in group.get_members }
-    total_amount = 0
+    members = { 
+        member.username : {
+            'spend' : 0,
+            'share' : 0,
+        } for member in group.get_members 
+    }
+    
     for transaction in transactions:
-        members[transaction.by.username] += transaction.amount
-        total_amount += transaction.amount
-
-    each_person_contribution = round(total_amount / len(members))
+        members[transaction.by.username]['spend'] += transaction.amount
+        for user in transaction.share_to.all():
+            members[user.username]['share'] += transaction.amount / len(transaction.share_to.all())
 
     rows = []
-    for member, spend in members.items():
+    total_amount = 0
+    for member, money in members.items():
+        total_amount += money['spend']
+        money['share'] = int(money['share'])
+
         rows.append([
             member, 
-            spend, 
-            0 if each_person_contribution >  spend else spend - each_person_contribution,
-            0 if each_person_contribution <= spend else each_person_contribution - spend,
+            money['spend'],
+            money['share'], 
+            0 if money['share'] >  money['spend'] else money['spend'] - money['share'],
+            0 if money['share'] <  money['spend'] else money['share'] - money['spend'],
         ])
     
     
     return render(request, 'pages/transactions_split.html', {
         'rows' : rows,
-        'split': each_person_contribution,
         'total': total_amount,
         'start_point' : start_date,
         'stop_point' : stop_date,
