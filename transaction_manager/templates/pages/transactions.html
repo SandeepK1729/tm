@@ -35,7 +35,8 @@
                                     <option value="{{ member.username }}"  class="text-center">{{ member.username }}</option>
                                 {% endfor %}
                             </select>
-                        </th><th scope="col">
+                        </th>
+                        <th scope="col">
                             Options <button class="btn btn-light w-10" type="text" onclick="on_filtering()"><i class="fa-solid fa-rotate"></i></button>
                         </th>
                     </tr>
@@ -80,19 +81,21 @@
                     
                     var tr = document.createElement('tr');
                     var re = `
-                        <td scope="row"> ${ is_owner ? "You" : res[i].fields.added_by} </td>
+                        <td scope="row"
+                           > ${ is_owner ? "You" : res[i].fields.added_by} </td>
                         <td> ${res[i].fields.transaction_for} </td>
                         <td> ${res[i].fields.by} </td>
                         <td> ${res[i].fields.to} </td>
                         <td> ${res[i].fields.amount} </td>
                         <td> ${res[i].fields.on.substr(8, 2)}-${res[i].fields.on.substr(5, 2)}-${res[i].fields.on.substr(0, 4)} </td>
                         <td> ${res[i].fields.share_to.length}</td>
+                        
                     `;
                     
                     if(is_owner) {
                         re += `
-                            <td class="d-flex flex-inline" style="gap:1px;">
-                                <a href="{% url 'add transaction' group.id %}?id=${res[i].pk}" class="btn btn-success w-50">
+                            <td class="" style="gap:1px;height:100%;display:flex;">
+                                <a class="btn btn-success w-50" href="{% url 'add transaction' group.id %}?id=${res[i].pk}" >
                                     <i class="fa-regular fa-pen-to-square"></i>
                                 </a>
                                 <form class="w-50" action="{% url 'transactions api' group.id %}" method="POST">
@@ -111,6 +114,7 @@
                         `;
                     }
                     tr.innerHTML = re;
+                    
                     $("#transactions_list").append(tr);
                 }
 
