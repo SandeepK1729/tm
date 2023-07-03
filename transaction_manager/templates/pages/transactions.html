@@ -16,7 +16,7 @@
                                     <option value="{{ member.username }}"  class="text-center">{{ member.username }}</option>
                                 {% endfor %}
                             </select>
-                        </th scope="col">
+                        </th>
                         <th scope="col">To</th>
                         <th scope="col">Amount</th>
                         <th scope="col">
@@ -27,8 +27,15 @@
                             <input class="w-30" name="stop_point" id="stop_point"   type="date"></input>
 
                         </th>
-                        <th scope="col">Share Among</th>
                         <th scope="col">
+                            <label for="share_to">Share To</label>
+                            <select class="" name="share_to" id="share_to" autofocus class="rounded">
+                                <option value="*" class="text-center">All users</option>
+                                {% for member in group.get_members %}
+                                    <option value="{{ member.username }}"  class="text-center">{{ member.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </th><th scope="col">
                             Options <button class="btn btn-light w-10" type="text" onclick="on_filtering()"><i class="fa-solid fa-rotate"></i></button>
                         </th>
                     </tr>
@@ -46,10 +53,10 @@
         $("#start_point").val(today.substr(0, 8) + "01");
 
         
-        function load_data(username, start_point, stop_point) {
+        function load_data(username, start_point, stop_point, share_to) {
             $("#transactions_list").html(`<tr><td colspan="8" class="text-center">loading ... please wait</td></tr>`);
 
-            fetch(`{% url 'transactions api' group.id %}?username=${username}&start_date=${start_point}&stop_date=${stop_point}`)
+            fetch(`{% url 'transactions api' group.id %}?username=${username}&start_date=${start_point}&stop_date=${stop_point}&share_to=${share_to}`)
             .then(res => res.json())
             .then(res => {
                 $("#transactions_list").html(``);
@@ -79,12 +86,8 @@
                         <td> ${res[i].fields.to} </td>
                         <td> ${res[i].fields.amount} </td>
                         <td> ${res[i].fields.on.substr(8, 2)}-${res[i].fields.on.substr(5, 2)}-${res[i].fields.on.substr(0, 4)} </td>
-                        <td>
+                        <td> ${res[i].fields.share_to.length}</td>
                     `;
-                    for(var j = 0; j < res[i].fields.share_to.length; j++) {
-                        re += `<p class="badge bg-secondary">${res[i].fields.share_to[j]}</p>`;
-                    }
-                    re += `</td>`
                     
                     if(is_owner) {
                         re += `
@@ -121,22 +124,21 @@
             let username = $("#username").val();
             let start_point = $("#start_point").val();
             let stop_point = $("#stop_point").val();
-
-            console.log(username);
-            console.log(start_point);
-            console.log(stop_point);
+            let share_to = $("#share_to").val();
     
-            load_data(username, start_point, stop_point);
+            load_data(username, start_point, stop_point, share_to);
 
         }
 
         $("#username").change(on_filtering);
         $("#start_point").change(on_filtering);
         $("#stop_point").change(on_filtering);
+        $("#share_to").change(on_filtering);
         
         $(function() {
             console.log( "ready!" );
             on_filtering();
+            $("#username").focus();
          });
 
     </script>

@@ -149,6 +149,13 @@ def api_group_transactions_view(request, id):
         if username != "*":
             user = User.objects.get(username = username)
             transactions = transactions.filter(by = user)
+
+        # share to filter
+        share_to = request.GET.get('share_to', '*')
+
+        if share_to != "*":
+            user = User.objects.get(username = share_to)
+            transactions = transactions.filter(share_to = user)
         
         # trasaction ordering on descending time
         transactions = transactions.order_by('-on')

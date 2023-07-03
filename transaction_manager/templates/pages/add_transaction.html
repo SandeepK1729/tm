@@ -20,6 +20,7 @@
         border: 2px solid #50bcf2;
         border-radius: 6px;
         box-sizing: border-box;
+        margin-bottom: 10px;
     }
     
     article div {
@@ -57,7 +58,7 @@
     <div class="row justify-content-center align-items-center">
         <div class="col-xl-4 col-md-6 col-12">
             <div class="card p-3 col d-flex ">
-                <h1>Add New Transaction</h1>
+                <h1 class="fs-2">Add New Transaction</h1>
 
                 <div  class="card-body ">
                     <div class="card-text">
@@ -109,12 +110,23 @@
                                 <label for="share_to">Share To</label>
 
                                 <div class="checkbox-parent">
+                                    <article>
+                                        <input 
+                                            type="checkbox" 
+                                            id="all_options"
+                                        />
+                                        <div>
+                                            <span>
+                                                All
+                                            </span>
+                                        </div>
+                                    </article>
                                     {% for member in group.get_members %}
                                         <article>
                                             <input 
                                                 type="checkbox" 
                                                 name="share_to" 
-                                                id="share_to"
+                                                class="share_options"
                                                 value="{{ member.username }}"
                                                 {% if member in transaction.share_to.all %}
                                                         checked
@@ -147,6 +159,11 @@
         {% if not transaction %}
             $("#on").val(today);
         {% endif %}
+
+        $('#all_options').change(function() {
+            var isChecked = $(this).is(':checked');
+            $('.share_options').prop('checked', isChecked);
+        });
 
     })
 </script>
