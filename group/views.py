@@ -91,7 +91,20 @@ def add_group_transaction_view(request, group):
         'group' : group,
         'title' : f'Add Transaction in {group.name} Group',
         'is_individual_group' : len(group.get_members) == 1,
-        'transaction' : Transaction.objects.filter(id = request.GET.get('id')).first() if "id" in request.GET else None,
+        'transaction' : None,
+    })
+    
+@login_required
+@group_member_login_required
+def info_group_transaction_view(request, group):
+    if "id" not in request.GET:
+        return redirect(to = f'/group/{group.id}/transactions')
+    print(request.GET.get('id'))
+    return render(request, 'pages/add_transaction.html', {
+        'group' : group,
+        'title' : f'Transaction Info of {group.name} Group',
+        'is_individual_group' : len(group.get_members) == 1,
+        'transaction' : Transaction.objects.get(id = request.GET.get('id')),
     })
 
 def api_group_transactions_view(request, id):
@@ -102,7 +115,14 @@ def api_group_transactions_view(request, id):
         request.POST = request.POST.dict()
         
         transaction_id = int(request.POST.get("transaction_id"))
-        transaction = Transaction() if transaction_id == 0 else Transaction.objects.get(id = transaction_id)
+        transaction = None
+        
+        if transaction_id == 0:
+            transaction = Transaction()
+        else:
+            transaction = Transaction.objects.get(id = transaction_id)
+            if transaction.added_by != request.user:
+                return HttpResponse("You are not allowed to edit this transaction")
 
         if request.POST.get("action") == "delete":
             transaction.delete()

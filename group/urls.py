@@ -8,7 +8,8 @@ urlpatterns = [
 
     path('group/<int:id>/transactions', views.group_transactions_view, name = "transactions"),
     path('group/<int:id>/transactions/add', views.add_group_transaction_view, name = "add transaction"),
-
+    path('group/<int:id>/transactions/info', views.info_group_transaction_view, name = "info transaction"),
+    
     path('group/<int:id>/api/transactions', views.api_group_transactions_view, name = "transactions api"),
 
     path('group/<int:id>/monthly_split', views.group_transactions_monthly_split, name = "transactions monthly split"),
