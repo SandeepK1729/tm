@@ -50,99 +50,108 @@
     <script>
         let today = new Date().toISOString().split('T')[0];
         
-        $("#stop_point").val(today);
-        $("#start_point").val(today.substr(0, 8) + "01");
+        let stop_point  = $("#stop_point");
+        let start_point = $("#start_point");
 
-        
-        function load_data(username, start_point, stop_point, share_to) {
+        stop_point.val(today);
+        start_point.val(today.substr(0, 8) + "01");
+
+        var data = [];
+        let username = $("#username");
+        let share_to = $("#share_to");
+
+        async function fetch_data() {
+            console.log("fetching data");
             $("#transactions_list").html(`<tr><td colspan="8" class="text-center">loading ... please wait</td></tr>`);
-
-            fetch(`{% url 'transactions api' group.id %}?username=${username}&start_date=${start_point}&stop_date=${stop_point}&share_to=${share_to}`)
+            await fetch(`{% url 'transactions api' group.id %}?start_date=${start_point.val()}&stop_date=${stop_point.val()}`)
             .then(res => res.json())
             .then(res => {
-                $("#transactions_list").html(``);
-                {% comment %} `
-                    <form action="{% url 'transactions' group.id %}" method="post">
-                        <td class="p-auto"><input class="border" type="text" name="for" scope="row"/></td>
-                        <td><select class="" name="username" id="username" autofocus>
-                            {% for member in group.get_members %}
-                                <option value="{{ member.username }}"  class="text-center">{{ member.username }}</option>
-                            {% endfor %}
-                        </select></td>
-                        <td><input class="border" type="text" name="to" scope="row"/></td>
-                        <td><input class="border" type="text" name="amount" scope="row"/></td>
-                        <td><input class="border" type="submit" value="add transacion"/></td>
-                    </form>
-                `); {% endcomment %}
-
-                for(var i = 0; i < res.length; i++) {
-                    
-                    let is_owner = (res[i].fields.added_by == "{{ user.username }}");
-                    
-                    var tr = document.createElement('tr');
-                    var re = `
-                        <td scope="row"
-                           > ${ is_owner ? "You" : res[i].fields.added_by} </td>
-                        <td> ${res[i].fields.transaction_for} </td>
-                        <td> ${res[i].fields.by} </td>
-                        <td> ${res[i].fields.to} </td>
-                        <td> ${res[i].fields.amount} </td>
-                        <td> ${res[i].fields.on.substr(8, 2)}-${res[i].fields.on.substr(5, 2)}-${res[i].fields.on.substr(0, 4)} </td>
-                        <td> ${res[i].fields.share_to.length}</td>
-                        
-                    `;
-                    
-                    if(is_owner) {
-                        re += `
-                            <td class="" style="gap:1px;height:100%;display:flex;">
-                                <a class="btn btn-success w-50" href="{% url 'add transaction' group.id %}?id=${res[i].pk}" >
-                                    <i class="fa-regular fa-pen-to-square"></i>
-                                </a>
-                                <form class="w-50" action="{% url 'transactions api' group.id %}" method="POST">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="transaction_id" value="${res[i].pk}"/>
-                                    <input type="hidden" name="action" value="delete"/>
-                                    <button class="btn btn-danger w-100" type="submit"> 
-                                        <i class="fa-solid fa-trash"></i>
-                                    <button/>
-                                </form>
-                            </td>
-                        `;
-                    } else {
-                        re += `
-                            <td></td>
-                        `;
-                    }
-                    tr.innerHTML = re;
-                    
-                    $("#transactions_list").append(tr);
-                }
-
-                if(res.length == 0) {
-                    $("#transactions_list").html(`<tr><td colspan="8" class="text-center">No transactions found..</td></tr>`);
-                }
+                data = res;
             });
+            console.log("data fetched");
         }
         
-        function on_filtering() {
-            let username = $("#username").val();
-            let start_point = $("#start_point").val();
-            let stop_point = $("#stop_point").val();
-            let share_to = $("#share_to").val();
-    
-            load_data(username, start_point, stop_point, share_to);
+        function load_data() {
+            $("#transactions_list").html("");
+            let j = 0;
+            for(var i = 0; i < data.length; i++) {
+                if(username.val() != "*" && data[i].fields.by != username.val())    continue;
+                
+                if(share_to.val() != "*") {
+                    let b = false;
+                    for(var k = 0; k < data[i].fields.share_to.length; k++) {
+                        if(data[i].fields.share_to[k] == share_to.val()) {
+                            b = true;
+                            break;
+                        }
+                    }
+                    if(!b) continue;
+                }
 
+                j += 1;
+                let is_owner = (data[i].fields.added_by == "{{ user.username }}");
+                
+                var tr = document.createElement('tr');
+                var re = `
+                    <td scope="row"
+                        > ${ is_owner ? "You" : data[i].fields.added_by} </td>
+                    <td> ${data[i].fields.transaction_for} </td>
+                    <td> ${data[i].fields.by} </td>
+                    <td> ${data[i].fields.to} </td>
+                    <td> ${data[i].fields.amount} </td>
+                    <td> ${data[i].fields.on.substr(8, 2)}-${data[i].fields.on.substr(5, 2)}-${data[i].fields.on.substr(0, 4)} </td>
+                    <td> ${data[i].fields.share_to.length}</td>
+                    
+                `;
+                
+                if(is_owner) {
+                    re += `
+                        <td class="" style="gap:1px;height:100%;display:flex;">
+                            <a class="btn btn-success w-50" href="{% url 'add transaction' group.id %}?id=${data[i].pk}" >
+                                <i class="fa-regular fa-pen-to-square"></i>
+                            </a>
+                            <form class="w-50" action="{% url 'transactions api' group.id %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="transaction_id" value="${data[i].pk}"/>
+                                <input type="hidden" name="action" value="delete"/>
+                                <button class="btn btn-danger w-100" type="submit"> 
+                                    <i class="fa-solid fa-trash"></i>
+                                <button/>
+                            </form>
+                        </td>
+                    `;
+                } else {
+                    re += `
+                        <td></td>
+                    `;
+                }
+                tr.innerHTML = re;
+                
+                $("#transactions_list").append(tr);
+            }
+
+            if(j == 0) {
+                $("#transactions_list").html(`<tr><td colspan="8" class="text-center">No transactions found..</td></tr>`);
+            }
+        }
+        
+        async function on_filtering() {
+            await fetch_data();
+
+            load_data();
         }
 
-        $("#username").change(on_filtering);
-        $("#start_point").change(on_filtering);
-        $("#stop_point").change(on_filtering);
-        $("#share_to").change(on_filtering);
+        share_to.change(load_data);
+        username.change(load_data);
         
-        $(function() {
+        start_point.change(on_filtering);
+        stop_point.change(on_filtering);
+
+        $(document).ready(function() {
             console.log( "ready!" );
             on_filtering();
-            $("#username").focus();
+
+            username.focus();
          });
 
     </script>
