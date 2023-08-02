@@ -19,6 +19,16 @@ class Group(models.Model):
                 )
     created_by  = models.ForeignKey("core.User", on_delete = models.CASCADE)
     created_on  = models.DateTimeField(default = timezone.now)
+    savings     = models.IntegerField(verbose_name = "Savings", default = 0)
+    maintainer  = models.ForeignKey(
+                    "core.User", 
+                    verbose_name = "Savings Account Maintainer", 
+                    on_delete = models.CASCADE,
+                    related_name = "maintaining_groups",
+                    related_query_name = "maintaining_groups",
+                    blank = True,
+                    null = True
+                )
 
     def __str__(self):
         return f"{self.name} created by {self.created_by}"
@@ -34,6 +44,7 @@ class Group(models.Model):
     
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
+        self.maintainer = self.created_by
         self.created_by.groups.add(self)
     
     def add_member(self, user):
@@ -44,7 +55,26 @@ class Group(models.Model):
         for user in users:
             user.groups.add(self)
             user.save()
+
+    @property
+    def get_savings_amount(self):
+        savings_amount = 0
         
+        for transaction in self.transactions.all():
+            if transaction.transaction_for != "savings" and transaction.by != User.objects.get("savings"):
+                continue
+
+            if transaction.transaction_for == "savings":
+                savings_amount += transaction.amount
+            if transaction.by == "savings":
+                savings_amount -= transaction.amount 
+
+            print("debugger")
+             
+    def update_savings_amount(self):
+        self.savings = self.get_savings_amount
+        self.save()
+    
 class Transaction(models.Model):
     """
         Transaction Model
@@ -60,3 +90,22 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"transaction for {self.transaction_for} by {self.by} on {self.on} to {self.to} of amount {self.amount}"
+    
+    def save(self, *args, **kwargs):
+        # if self.id is None:
+        #     if self.transaction_for == "savings" and self.amount > 0:
+        #         self.of_group.savings += self.amount
+                
+        # else:
+        #     self.of_group.update_savings_amount()
+
+        super().save(*args, **kwargs)
+    
+    def delete(self, *args, **kwargs):
+        if self.transaction_for == "savings" and self.amount > 0:
+            self.of_group.savings -= self.amount
+        if self.by == "savings":
+            self.of_group.savings += self.amount
+        self.of_group.save()
+        super().delete(*args, **kwargs)
+

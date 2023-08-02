@@ -91,6 +91,7 @@ def add_group_transaction_view(request, group):
         'group' : group,
         'title' : f'Add Transaction in {group.name} Group',
         'is_individual_group' : len(group.get_members) == 1,
+        'savings' : User.objects.get(username = "savings"),
         'transaction' : Transaction.objects.filter(id = request.GET.get('id')).first() if "id" in request.GET else None,
     })
 
@@ -107,19 +108,47 @@ def api_group_transactions_view(request, id):
         if request.POST.get("action") == "delete":
             transaction.delete()
             return redirect(to = f'/group/{group.id}/transactions')
+        
+        savings_account_balance     = group.savings
 
+        if transaction.id is not None:
+            if transaction.transaction_for == "savings":
+                savings_account_balance -= transaction.amount
+            if transaction.by == "savings":
+                savings_account_balance += transaction.amount 
+
+    
         transaction.transaction_for = request.POST.get("for")
         transaction.by              = User.objects.get(username = request.POST.get("by"))
         transaction.to              = request.POST.get("to")
         transaction.of_group        = group
-        transaction.amount          = request.POST.get("amount")
+        transaction.amount          = int(request.POST.get("amount"))
         transaction.on              = request.POST.get("on")
         transaction.added_by        = request.user
-        transaction.save()
 
+        if request.POST.get("is_it_for_savings", "on") == "on":
+            transaction.transaction_for = "savings"
+            transaction.to = "savings"
+
+        transaction.save()
+        
+    
         transaction.share_to.clear()
-        share_to = [User.objects.get(username = username) for username in request_POST.get("share_to", [])]
+
+        if "share_to" in request_POST:
+            share_to = [User.objects.get(username = username) for username in request_POST.get("share_to", [])]
+        else:
+            share_to = group.get_members
+
         transaction.share_to.add(*share_to)
+
+        if transaction.transaction_for == "savings":
+            savings_account_balance += transaction.amount
+        if transaction.by == "savings":
+            savings_account_balance -= transaction.amount 
+
+        group.savings = savings_account_balance
+        group.save()
 
         return redirect(to = f'/group/{group.id}/transactions')
 
