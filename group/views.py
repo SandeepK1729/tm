@@ -111,11 +111,7 @@ def api_group_transactions_view(request, id):
         
         savings_account_balance     = group.savings
 
-        if transaction.id is not None:
-            if transaction.transaction_for == "savings":
-                savings_account_balance -= transaction.amount
-            if transaction.by == "savings":
-                savings_account_balance += transaction.amount 
+        old_transaction_amount = transaction.amount if transaction.id is not None else 0
 
     
         transaction.transaction_for = request.POST.get("for")
@@ -143,10 +139,17 @@ def api_group_transactions_view(request, id):
 
         transaction.share_to.add(*share_to)
 
+        print("adding to savings")
+        change_amount = transaction.amount - old_transaction_amount
+        print("change_amount ", change_amount)
+
+        print(transaction, transaction.transaction_for, transaction.by)
         if transaction.transaction_for == "savings":
-            savings_account_balance += transaction.amount
-        if transaction.by == "savings":
-            savings_account_balance -= transaction.amount
+            savings_account_balance += change_amount
+            print("savings_account_balance after adding ", savings_account_balance)
+        if transaction.by.username == "savings":
+            savings_account_balance -= change_amount
+            print("savings_account_balance after using ", savings_account_balance)
 
         group.savings = savings_account_balance
         group.save()
