@@ -3,7 +3,9 @@
 {% block body %}
     <div class="container">
 
-        <p class="text-primary">Total amount spend by group is {{ total }}</p>
+        <p class="text-primary">Total amount given by group members is {{ total_amount }}</p>
+        <p class="text-secondary">Total spend amount by group is {{ total_spend_amount }}</p>
+        <p class="text-success">Total savings of group is {{ total_savings }}</p>
         <br>
         
         {% if total != 0 %}
@@ -15,7 +17,7 @@
                         <th class="text-center" colspan="4">Amount</th>
                     </tr>
                     <tr>
-                        <th class="text-center" >Spend</th>
+                        <th class="text-center" >Given</th>
                         <th class="text-center" >Share</th>
                         <th class="text-center" >Get</th>
                         <th class="text-center" >Pay</th>

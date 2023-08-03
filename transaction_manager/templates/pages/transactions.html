@@ -92,6 +92,8 @@
                 let is_owner = (data[i].fields.added_by == "{{ user.username }}");
                 
                 var tr = document.createElement('tr');
+                tr.classList.add(data[i].fields.transaction_for != "savings" ? "text-dark" : "text-success");
+
                 var re = `
                     <td scope="row"
                         > ${ is_owner ? "You" : data[i].fields.added_by} </td>
