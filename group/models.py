@@ -29,6 +29,7 @@ class Group(models.Model):
                     blank = True,
                     null = True
                 )
+    
 
     def __str__(self):
         return f"{self.name} created by {self.created_by}"
