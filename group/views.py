@@ -127,7 +127,6 @@ def api_group_transactions_view(request, id):
             transaction.transaction_for = "savings"
             transaction.to = "savings"
 
-        
         transaction.save()
         
         transaction.share_to.clear()
