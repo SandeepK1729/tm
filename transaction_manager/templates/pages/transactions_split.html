@@ -24,9 +24,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for row in rows %}
+                    {% for member, amount in data.items %}
                         <tr>
-                            {% for col in row %}
+                            <td class="text-center" scope="row"> {{ member }} </td>
+                            {% for col in amount.values %}
                                 <td class="text-center" scope="row"> {{ col }} </td>
                             {% endfor %}
                         </tr>

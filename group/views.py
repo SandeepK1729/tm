@@ -9,6 +9,8 @@ from core.models                    import User
 from datetime                       import date
 from time                           import sleep
 
+from .helper                        import round_up
+
 @login_required
 def groups_view(request):
     context = {
@@ -231,8 +233,8 @@ def group_transactions_monthly_split(request, group):
         } for member in group.get_members
     }
     
-    total_saved_amount = 0            # total amount given by all the members
-    total_spend_amount = 0      # total amount spend by group
+    total_saved_amount = 0              # total amount given by all the members
+    total_spend_amount = 0              # total amount spend by group
     
     for transaction in transactions:
         
@@ -241,41 +243,83 @@ def group_transactions_monthly_split(request, group):
             members[transaction.by.username]['given'] += transaction.amount # add to user given amount
             total_saved_amount += transaction.amount                         # add to total amount
 
-            continue
-        
-        # if transaction by is member then add to individual given amount
-        if transaction.by.username != "savings":
-            members[transaction.by.username]['given'] += transaction.amount # add to user given amount
-            total_spend_amount += transaction.amount 
-        
+            print("transaction for savings ", transaction.amount, total_saved_amount, total_spend_amount)
+        else:
+            # if transaction by is member then add to individual given amount
+            if transaction.by.username != "savings":
+                members[transaction.by.username]['given'] += transaction.amount # add to user given amount
+                total_spend_amount += transaction.amount 
+
+                print("transaction by member ", transaction.amount, total_saved_amount, total_spend_amount)
+            else: 
+                total_saved_amount -= transaction.amount
+                total_spend_amount += transaction.amount
+
+                print("transaction by savings ", transaction.amount, total_saved_amount, total_spend_amount)
+
             # split the amount to all the shared members
             for user in transaction.share_to.all():     # for each shared member
-               members[user.username]['share'] += transaction.amount / len(transaction.share_to.all()) # add to shared amount
-        else: 
-            total_saved_amount -= transaction.amount
-    rows = []
+                members[user.username]['share'] += transaction.amount / len(transaction.share_to.all()) # add to shared amount
+
+    
+    data = {}
     total_amount = 0
     for member, money in members.items():
-        money['share'] = int(money['share'])
+        money['share'] = round_up(money['share'])
 
-        rows.append([
-            member, 
-            money['given'],
-            money['share'], 
-            0 if money['share'] >  money['given'] else money['given'] - money['share'],
-            0 if money['share'] <  money['given'] else money['share'] - money['given'],
-        ])
+        data[member] = {
+            'given' : money['given'],
+            'share' : money['share'],
+            # 'extra' : money['given'] - money['share'],
+            'get' : 0,
+            'pay' : 0,
+        }
+
         total_amount += money['given']
     
+    # get the active members
+    active_members = [
+        member.username
+        for member in group.get_members
+        if members[member.username]['share'] > 0
+    ]
+    active_members_count = len(active_members)
+    if active_members_count == 0:
+        # return HttpResponse("No active members")
+        active_members_count = 1
+
+    # split the total saved amount to all the active members
+    savings_share_amount = round_up(total_saved_amount / active_members_count)
+
+    # add the share amount to all the active members
+    for member in active_members:
+        # given + pay = share + get
+        # given - share = get - pay
+        # extra = given - share  = get - pay
+
+        # data[member]['share'] += savings_share_amount
+        data[member]['extra']   = data[member]['given'] - data[member]['share']
+
+        # get_amount
+        if data[member]['extra'] > 0:
+            data[member]['get'] = data[member]['extra']
+            data[member]['pay'] = 0
+        # pay_amount
+        else:
+            data[member]['get'] = 0
+            data[member]['pay'] = abs(data[member]['extra'])
+        
+        data[member].pop('extra')
+
     return render(request, 'pages/transactions_split.html', {
-        'rows' : rows,
-        'total_amount': total_amount,
-        'total_spend_amount' : total_spend_amount,
-        'total_savings' : total_saving_amount,
-        'start_point' : start_date,
-        'stop_point' : stop_date,
-        'group' : group,
-        'title' : f'{group.name} Group Transactions Split'
+        'data'                  : data,
+        'total_amount'          : total_amount,
+        'total_spend_amount'    : total_spend_amount,
+        'total_savings'         : total_saved_amount,
+        'start_point'           : start_date,
+        'stop_point'            : stop_date,
+        'group'                 : group,
+        'title'                 : f'{group.name} Group Transactions Split'
     })
 
     
