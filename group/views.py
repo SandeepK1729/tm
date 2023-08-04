@@ -231,7 +231,7 @@ def group_transactions_monthly_split(request, group):
         } for member in group.get_members
     }
     
-    total_amount = 0            # total amount given by all the members
+    total_saved_amount = 0            # total amount given by all the members
     total_spend_amount = 0      # total amount spend by group
     
     for transaction in transactions:
@@ -239,24 +239,22 @@ def group_transactions_monthly_split(request, group):
         # if transaction for is savings then add to total amount not to total spend amount
         if transaction.transaction_for == "savings":
             members[transaction.by.username]['given'] += transaction.amount # add to user given amount
-            total_amount += transaction.amount                              # add to total amount
+            total_saved_amount += transaction.amount                         # add to total amount
 
             continue
         
         # if transaction by is member then add to individual given amount
         if transaction.by.username != "savings":
             members[transaction.by.username]['given'] += transaction.amount # add to user given amount
-    
-        # wheather transaction by is savings or by user then add to total spend amount not to total amount
-        total_spend_amount += transaction.amount    # add to total spend amount
-        total_amount += transaction.amount          # add to total amount 
+            total_spend_amount += transaction.amount 
         
-        # split the amount to all the shared members
-        for user in transaction.share_to.all():     # for each shared member
-            members[user.username]['share'] += transaction.amount / len(transaction.share_to.all()) # add to shared amount
-
-
+            # split the amount to all the shared members
+            for user in transaction.share_to.all():     # for each shared member
+               members[user.username]['share'] += transaction.amount / len(transaction.share_to.all()) # add to shared amount
+        else: 
+            total_saved_amount -= transaction.amount
     rows = []
+    total_amount = 0
     for member, money in members.items():
         money['share'] = int(money['share'])
 
@@ -267,13 +265,13 @@ def group_transactions_monthly_split(request, group):
             0 if money['share'] >  money['given'] else money['given'] - money['share'],
             0 if money['share'] <  money['given'] else money['share'] - money['given'],
         ])
-    
+        total_amount += money['given']
     
     return render(request, 'pages/transactions_split.html', {
         'rows' : rows,
         'total_amount': total_amount,
         'total_spend_amount' : total_spend_amount,
-        'total_savings' : total_amount - total_spend_amount,
+        'total_savings' : total_saving_amount,
         'start_point' : start_date,
         'stop_point' : stop_date,
         'group' : group,
