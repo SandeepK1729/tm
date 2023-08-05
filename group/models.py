@@ -17,20 +17,20 @@ class Group(models.Model):
                     },
                     max_length = 30,
                 )
-    created_by  = models.ForeignKey("core.User", on_delete = models.CASCADE)
+    created_by  = models.ForeignKey("core.User", on_delete = models.SET_NULL, null = True)
     created_on  = models.DateTimeField(default = timezone.now)
     savings     = models.IntegerField(verbose_name = "Savings", default = 0)
     maintainer  = models.ForeignKey(
                     "core.User", 
                     verbose_name = "Savings Account Maintainer", 
-                    on_delete = models.CASCADE,
+                    on_delete = models.SET_NULL,
                     related_name = "maintaining_groups",
                     related_query_name = "maintaining_groups",
                     blank = True,
                     null = True
                 )
+    inactive_members = models.ManyToManyField("core.User", related_name = "inactive_groups", blank = True)
     
-
     def __str__(self):
         return f"{self.name} created by {self.created_by}"
 
@@ -42,6 +42,16 @@ class Group(models.Model):
             list[User Object]: list of users
         """
         return [x for x in self.members.all().order_by('id')]
+    
+    @property
+    def get_active_members(self):
+        """get all active members associated with group
+
+        Returns:
+            list[User Object]: list of users
+        """
+        inactive_members = self.inactive_members.all()
+        return [x for x in self.get_members if x not in inactive_members]
     
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -84,7 +94,7 @@ class Transaction(models.Model):
     by              = models.ForeignKey("core.User", on_delete = models.SET_NULL, null = True, related_name = "by")
     to              = models.CharField(verbose_name = "to" , max_length = 60) 
     amount          = models.IntegerField()
-    of_group        = models.ForeignKey(Group, on_delete = models.CASCADE, related_name = "transactions")
+    of_group        = models.ForeignKey(Group, on_delete = models.SET_NULL, null=True, related_name = "transactions")
     on              = models.DateField(default = timezone.now)
     added_by        = models.ForeignKey("core.User", on_delete = models.CASCADE, related_name = "added_by") 
     share_to        = models.ManyToManyField("core.User", related_name = "share_to")

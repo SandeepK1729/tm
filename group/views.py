@@ -67,6 +67,14 @@ def group_view(request, group):
 
 @login_required
 @group_member_login_required
+def group_settings_view(request, group):
+    return render(request, "pages/group_settings.html", {
+        'group' : group,
+        'title' : f"{group.name} Group Settings",
+    })
+
+@login_required
+@group_member_login_required
 def remove_group_member(request, group, username):
     try:
         user = User.objects.get(username = username)
