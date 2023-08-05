@@ -18,7 +18,7 @@ def groups_view(request):
     }
     if request.method == "POST":
         try:
-            group = Group(name = request.POST.get("group_name"), created_by = request.user).order_by('-id')
+            group = Group.objects.create(name = request.POST.get("group_name"), created_by = request.user)
             group.save()
             context['message'] = f"Group named {group.name} created successfully"
         except Exception as e:
