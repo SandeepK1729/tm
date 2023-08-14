@@ -3,8 +3,9 @@ from django.db                  import models
 from django.utils               import timezone
 from django.utils.translation   import gettext_lazy as _
 from django.utils               import timezone
+from core.models                import User
 
-
+savings_user = User.objects.get(username = "savings")
 class Group(models.Model):
     """
         Group model
@@ -72,20 +73,17 @@ class Group(models.Model):
         savings_amount = 0
         
         for transaction in self.transactions.all():
-            if transaction.transaction_for != "savings" and transaction.by != User.objects.get("savings"):
+            if transaction.transaction_for != "savings" and transaction.by != savings_user:
                 continue
-
+            
             if transaction.transaction_for == "savings":
                 savings_amount += transaction.amount
-            if transaction.by == "savings":
+            if transaction.by == savings_user:
                 savings_amount -= transaction.amount 
-
-            print("debugger")
-    
-    def recalculate_savings(self):
-        self.savings = self.get_savings_amount
-        self.save()
+            
         
+        return savings_amount
+
     def update_savings_amount(self):
         self.savings = self.get_savings_amount
         self.save()

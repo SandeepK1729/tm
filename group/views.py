@@ -333,5 +333,5 @@ def group_transactions_monthly_split(request, group):
 @login_required
 @group_member_login_required
 def recalculate_savings(request, group):
-    group.recalculate_savings()
-    return HttpResponse(f"Recalculated Savings for {group.name}, new savings amount is {group.savings}")
+    group.update_savings_amount()
+    return HttpResponse(group.savings, status = 200)
