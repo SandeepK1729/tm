@@ -2,6 +2,9 @@
 
 {% block body %}
     <div class="container">
+        <p class="fs-3 text-center">Transactions</p>
+        
+        <hr>
         <div class="xl-col-8 col-12 row justify-content-center table-responsive">
             <table class="table table-hover text-center">
                 <thead>
@@ -44,6 +47,15 @@
                 <tbody id = "transactions_list">
                 </tbody>
             </table>
+
+            <br>
+            <p class="text-center"> if you think, savings amount is not correct, you can 
+                <button id="recalculate_savings" class="btn btn" aria-current="page" data-bs-toggle="modal" data-bs-target="#savingsModal">
+                    click here    
+                    <i class="fas fa-sync-alt"></i>
+                </button> to reload 
+            </p>
+            <br>
         </div>
     </div>
     
@@ -59,6 +71,20 @@
         var data = [];
         let username = $("#username");
         let share_to = $("#share_to");
+
+        let update_savings = () => {
+            $.ajax({
+                url : "{% url 'recalculate savings' group.id %}",
+                type : "GET",
+                success : (json) => {
+                    alert("savings recalculated successfully");
+                    $("#savings_amount").html(`Savings : ${json}`);
+                },
+                failure: () => {
+                    alert("savings recalculation failed");
+                }
+            });
+        }
 
         async function fetch_data() {
             console.log("fetching data");
@@ -149,11 +175,14 @@
         start_point.change(on_filtering);
         stop_point.change(on_filtering);
 
+
         $(document).ready(function() {
             console.log( "ready!" );
             on_filtering();
 
             username.focus();
+
+            $("#recalculate_savings").on("click", update_savings);
          });
 
     </script>
