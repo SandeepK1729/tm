@@ -12,4 +12,5 @@ urlpatterns = [
     path('group/<int:id>/api/transactions', views.api_group_transactions_view, name = "transactions api"),
 
     path('group/<int:id>/monthly_split', views.group_transactions_monthly_split, name = "transactions monthly split"),
+    path('group/<int:id>/recalculate_savings', views.recalculate_savings, name = "recalculate savings"),
 ]

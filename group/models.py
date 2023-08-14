@@ -81,7 +81,11 @@ class Group(models.Model):
                 savings_amount -= transaction.amount 
 
             print("debugger")
-             
+    
+    def recalculate_savings(self):
+        self.savings = self.get_savings_amount
+        self.save()
+        
     def update_savings_amount(self):
         self.savings = self.get_savings_amount
         self.save()
