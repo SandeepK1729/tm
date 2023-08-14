@@ -201,7 +201,7 @@ def api_group_transactions_view(request, id):
         #     transactions = transactions.filter(share_to = user)
         
         # trasaction ordering on descending time
-        transactions = transactions.order_by('-on', 'id')
+        transactions = transactions.order_by('-on', '-id')
 
         json = serializers.serialize("json", transactions, use_natural_foreign_keys=True)
         return HttpResponse(json) 
