@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 import dj_database_url
 from pathlib import Path
+import os
 
 import environ
 env = environ.Env()
@@ -18,6 +19,9 @@ environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# PWA Service Worker
+PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'transaction_manager/static/js', 'service-worker.js')
 
 
 # Quick-start development settings - unsuitable for production
@@ -75,41 +79,48 @@ PWA_APP_STATUS_BAR_COLOR = "default"
 PWA_APP_ICONS = [
     {
         "src": "/static/logo/favicon-16x16.png",
-        "sizes": "16x16"
+        "sizes": "16x16",
+        "type": "image/png"
     },
     {
         "src": "/static/logo/favicon.ico",
-        "sizes": "160x160"
+        "sizes": "160x160",
+        "type": "image/icon"
     },
     # {
     #     "src": "/static/logo/favicon-32x32.png",
-    #     "sizes": "32x32"
+    #     "sizes": "32x32",
+    #     "type": "image/png"
     # },
     # {
     #     "src": "/static/logo/android-chrome-192x192.png",
-    #     "sizes": "192x192"
+    #     "sizes": "192x192",
+    #     "type": "image/png"
     # },
     # {
     #     "src": "/static/logo/android-chrome-512x512.png",
-    #     "sizes": "512x512"
+    #     "sizes": "512x512",
+    #     "type": "image/png"
     # },
     
 ]
 PWA_APP_ICONS_APPLE = [
     {
         "src": "/static/logo/apple-touch-icon.png",
-        "sizes": "180x180"
+        "sizes": "180x180",
+        "type": "image/png"
     }
 ]
 PWA_APP_SPLASH_SCREEN = [
     {
         'src': 'static/images/icon.png',
-        'media': '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)'
+        'media': '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)',
+        'sizes': '320x568',
+        'type': 'image/png'
     }
 ]
 PWA_APP_DIR = "ltr"
 PWA_APP_LANG = "en-US"
-PWA_SERVICE_WORKER_PATH = BASE_DIR / 'transaction_manager' / 'static' / 'js' / 'service-worker.js'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

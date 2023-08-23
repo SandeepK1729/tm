@@ -5,6 +5,8 @@
     
     <!-- PWA configuration -->
     {% load pwa %}
+
+	{% comment %} {% pwa_meta_data %} {% endcomment %}
     {% progressive_web_app_meta %}
     {% comment %} {% manifest_json %} {% endcomment %}
     {% comment %} <link rel="manifest" href="manifest.json"> {% endcomment %}
@@ -12,7 +14,10 @@
 {% endblock %}
 
 {% block body %}
-        <div class="container">
-                <h1>Hello, {{ user.get_full_name }}!</h1>
-        </div>
+
+	{% comment %} {% pwa_meta_script %} {% endcomment %}
+
+	<div class="container">
+			<h1>Hello, {{ user.get_full_name }}!</h1>
+	</div>
 {% endblock body %}
