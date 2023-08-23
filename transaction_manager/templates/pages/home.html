@@ -1,4 +1,15 @@
 {% extends '../base.html' %}
+{% load static %}
+
+{% block head %}
+    
+    <!-- PWA configuration -->
+    {% load pwa %}
+    {% progressive_web_app_meta %}
+    {% comment %} {% manifest_json %} {% endcomment %}
+    {% comment %} <link rel="manifest" href="manifest.json"> {% endcomment %}
+
+{% endblock %}
 
 {% block body %}
         <div class="container">

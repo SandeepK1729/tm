@@ -6,6 +6,7 @@ urlpatterns = [
     path('', include("core.urls")),
     path('', include("group.urls")),
     
+    path('', include('pwa.urls')),      # adding pwa urls
 ]
 
 from django.conf import settings

@@ -54,12 +54,62 @@ INSTALLED_APPS = [
 
     'crispy_forms',
     'crispy_bootstrap5',
+    
+    'pwa',  # adding pwa app
 ]
 
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
+# PWA CONFIGURATION
+PWA_APP_NAME = "Transaction Manager"
+PWA_APP_DESCRIPTION = "A simple transaction manager"
+PWA_APP_THEME_COLOR = "#000000"
+PWA_APP_BACKGROUND_COLOR = "#ffffff"
+PWA_APP_DISPLAY = "standalone"
+PWA_APP_SCOPE = "/"
+PWA_APP_ORIENTATION = "any"
+PWA_APP_START_URL = "/"
+PWA_APP_STATUS_BAR_COLOR = "default"
+PWA_APP_ICONS = [
+    {
+        "src": "/static/logo/favicon-16x16.png",
+        "sizes": "16x16"
+    },
+    {
+        "src": "/static/logo/favicon.ico",
+        "sizes": "160x160"
+    },
+    # {
+    #     "src": "/static/logo/favicon-32x32.png",
+    #     "sizes": "32x32"
+    # },
+    # {
+    #     "src": "/static/logo/android-chrome-192x192.png",
+    #     "sizes": "192x192"
+    # },
+    # {
+    #     "src": "/static/logo/android-chrome-512x512.png",
+    #     "sizes": "512x512"
+    # },
+    
+]
+PWA_APP_ICONS_APPLE = [
+    {
+        "src": "/static/logo/apple-touch-icon.png",
+        "sizes": "180x180"
+    }
+]
+PWA_APP_SPLASH_SCREEN = [
+    {
+        'src': 'static/images/icon.png',
+        'media': '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)'
+    }
+]
+PWA_APP_DIR = "ltr"
+PWA_APP_LANG = "en-US"
+PWA_SERVICE_WORKER_PATH = BASE_DIR / 'transaction_manager' / 'static' / 'js' / 'service-worker.js'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
