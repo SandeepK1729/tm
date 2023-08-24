@@ -15,6 +15,7 @@
                             <label for="username">By</label>
                             <select class="" name="username" id="username" autofocus class="rounded">
                                 <option value="*" class="text-center">All users</option>
+                                <option value="{{ savings.username }}" class="text-center">savings</option>
                                 {% for member in group.get_members %}
                                     <option value="{{ member.username }}"  class="text-center">{{ member.username }}</option>
                                 {% endfor %}
