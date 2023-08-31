@@ -169,42 +169,26 @@ def api_group_transactions_view(request, id):
         return redirect(to = f'/group/{group.id}/transactions')
 
     try:
-        # fetch transactions and return
-        transactions = Transaction.objects.filter(of_group = group)
-
         # date based filtering on transactions
         # start point
         start_point = request.GET.get('start_date', '*')
 
         if start_point != "*":
             start_point = date(*[int(x) for x in start_point.split('-')])
-            transactions = transactions.filter(on__gte=start_point)
         
         # stop point
         stop_point  = request.GET.get('stop_date', '*')
 
         if stop_point != "*":
             stop_point = date(*[int(x) for x in stop_point.split('-')])
-            transactions = transactions.filter(on__lte=stop_point)
         
-
-        # # user filter
-        # username = request.GET.get('username', '*')
-
-        # if username != "*":
-        #     user = User.objects.get(username = username)
-        #     transactions = transactions.filter(by = user)
-
-        # # share to filter
-        # share_to = request.GET.get('share_to', '*')
-
-        # if share_to != "*":
-        #     user = User.objects.get(username = share_to)
-        #     transactions = transactions.filter(share_to = user)
+        # fetch transactions and return
+        transactions = Transaction.objects.filter(
+                        of_group = group,           # of group
+                        on__gte = start_point ,     # date greater than or equal to start point
+                        on__lte = stop_point ,      # date less than or equal to stop point
+                    ).order_by('-on', '-id')        # trasaction ordering on descending time
         
-        # trasaction ordering on descending time
-        transactions = transactions.order_by('-on', '-id')
-
         json = serializers.serialize("json", transactions, use_natural_foreign_keys=True)
         return HttpResponse(json) 
 
