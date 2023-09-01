@@ -5,7 +5,6 @@ from django.utils.translation   import gettext_lazy as _
 from django.utils               import timezone
 from core.models                import User
 
-savings_user = User.objects.get(username = "savings")
 class Group(models.Model):
     """
         Group model

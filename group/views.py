@@ -10,7 +10,6 @@ from datetime                       import date
 from time                           import sleep
 
 from .helper                        import round_up
-from .models                        import savings_user 
 
 @login_required
 def groups_view(request):
@@ -93,7 +92,7 @@ def group_transactions_view(request, group):
     return render(request, 'pages/transactions.html', {
         'group' : group,
         'title' : f'{group.name} Group Transactions',
-        'savings' : savings_user
+        'savings' : User.objects.get(username = "savings")
     })
 
 @login_required
