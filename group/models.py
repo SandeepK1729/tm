@@ -70,6 +70,7 @@ class Group(models.Model):
     @property
     def get_savings_amount(self):
         savings_amount = 0
+        savings_user = User.objects.get(username = "savings")
         
         for transaction in self.transactions.all():
             if transaction.transaction_for != "savings" and transaction.by != savings_user:
