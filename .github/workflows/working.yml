@@ -55,8 +55,3 @@ jobs:
 
         python manage.py test
 
-    - name: Upload test coverage
-      if: always()  # Upload coverage results regardless of the previous step result
-      run: |
-        coverage xml
-        python-codacy-coverage -r coverage.xml
