@@ -64,8 +64,14 @@
             e.val("{{ stop_point }}");
             s.val("{{ start_point }}");
             
-            s.on("change", (event) => location.href = `monthly_split?start_point=${s.val()}&stop_point=${e.val()}`);
-            e.on("change", (event) => location.href = `monthly_split?start_point=${s.val()}&stop_point=${e.val()}`);
+            let changeURL = (event) => {
+                const start_point = encodeURIComponent(s.val());
+                const stop_point = encodeURIComponent(e.val());
+                    
+                location.href = `monthly_split?start_point=${start_point}&stop_point=${stop_point}`;
+            }
+            s.on("change", changeURL);
+            e.on("change", changeURL);
             
         </script>
 {% endblock body %}
