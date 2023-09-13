@@ -15,11 +15,11 @@ class Group(models.Model):
                     error_messages={
                         "unique": _("A group with that groupname already exists."),
                     },
-                    max_length = 30,
+                    max_length = 30
                 )
     created_by  = models.ForeignKey("core.User", on_delete = models.SET_NULL, null = True)
     created_on  = models.DateTimeField(default = timezone.now)
-    savings     = models.IntegerField(verbose_name = "Savings", default = 0)
+    savings     = models.PositiveIntegerField(verbose_name = "Savings", default = 0)
     maintainer  = models.ForeignKey(
                     "core.User", 
                     verbose_name = "Savings Account Maintainer", 
@@ -59,30 +59,26 @@ class Group(models.Model):
         self.created_by.groups.add(self)
     
     def add_member(self, user):
-        user.groups.add(self)
-        user.save()
+        self.members.add(user)
         
     def add_members(self, users):
-        for user in users:
-            user.groups.add(self)
-            user.save()
+        user_ids = users.values_list('id', flat=True)
+        self.members.add(*user_ids)
+        self.members.filter(id__in=user_ids).update(group=self)
 
     @property
     def get_savings_amount(self):
-        savings_amount = 0
-        savings_user = User.objects.get(username = "savings")
-        
-        for transaction in self.transactions.all():
-            if transaction.transaction_for != "savings" and transaction.by != savings_user:
-                continue
-            
-            if transaction.transaction_for == "savings":
-                savings_amount += transaction.amount
-            if transaction.by == savings_user:
-                savings_amount -= transaction.amount 
-            
-        
-        return savings_amount
+        savings_user = User.objects.get(username="savings")
+
+        savings_received = self.transactions.filter(
+            models.Q(transaction_for="savings")
+        ).aggregate(total_savings_received = models.Sum('amount'))['total_savings_received'] or 0
+
+        savings_sent = self.transactions.filter(
+            models.Q(transaction_by=savings_user)
+        ).aggregate(total_savings_sent=models.Sum('amount'))['total_savings_sent'] or 0
+
+        return savings_received - savings_sent
 
     def update_savings_amount(self):
         self.savings = self.get_savings_amount
@@ -95,7 +91,7 @@ class Transaction(models.Model):
     transaction_for = models.CharField(verbose_name = "for", max_length = 60) 
     by              = models.ForeignKey("core.User", on_delete = models.SET_NULL, null = True, related_name = "by")
     to              = models.CharField(verbose_name = "to" , max_length = 60) 
-    amount          = models.IntegerField()
+    amount          = models.PositiveIntegerField()
     of_group        = models.ForeignKey(Group, on_delete = models.SET_NULL, null=True, related_name = "transactions")
     on              = models.DateField(default = timezone.now)
     added_by        = models.ForeignKey("core.User", on_delete = models.CASCADE, related_name = "added_by") 

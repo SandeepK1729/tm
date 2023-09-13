@@ -7,7 +7,6 @@ from .decorators                    import group_member_login_required
 
 from core.models                    import User 
 from datetime                       import date
-from time                           import sleep
 
 from .helper                        import round_up
 
@@ -44,9 +43,8 @@ def group_view(request, group):
             user = None
             try:
                 user = User.objects.get(username = username)
-            except Exception as e:
-                if user is None:
-                    context['not_exist'].append(username)
+            except User.DoesNotExist:
+                context['not_exist'].append(username)
                 
             else:
                 if user in group.get_members:
@@ -150,18 +148,13 @@ def api_group_transactions_view(request, id):
 
         transaction.share_to.add(*share_to)
 
-        print("adding to savings")
         change_amount = transaction.amount - old_transaction_amount
-        print("change_amount ", change_amount)
-
-        print(transaction, transaction.transaction_for, transaction.by)
+        
         if transaction.transaction_for == "savings":
             savings_account_balance += change_amount
-            print("savings_account_balance after adding ", savings_account_balance)
         if transaction.by.username == "savings":
             savings_account_balance -= change_amount
-            print("savings_account_balance after using ", savings_account_balance)
-
+        
         group.savings = savings_account_balance
         group.save()
 
@@ -182,34 +175,28 @@ def api_group_transactions_view(request, id):
             stop_point = date(*[int(x) for x in stop_point.split('-')])
         
         # fetch transactions and return
-        transactions = Transaction.objects.filter(
-                        of_group = group,           # of group
-                        on__gte = start_point ,     # date greater than or equal to start point
-                        on__lte = stop_point ,      # date less than or equal to stop point
-                    ).order_by('-on', '-id')        # trasaction ordering on descending time
-        
+        transactions = Transaction.objects.filter(  
+            of_group=group,                                 # filter by group
+            on__gte=start_point,                            # filter by start point 
+            on__lte=stop_point,                             # filter by stop point
+        ).select_related('by').order_by('-on', '-id')       # order by date and id
+
         json = serializers.serialize("json", transactions, use_natural_foreign_keys=True)
         return HttpResponse(json) 
 
     except Exception as e:
-        print(e, end = "\n" * 3)
         return HttpResponse("")
 
 @login_required
 @group_member_login_required
 def group_transactions_monthly_split(request, group):
-
-    # fetch transactions and return
-    transactions = group.transactions.all()
-
-    # date based filtering on transactions
+    # # date based filtering on transactions
     # start point
     start_point = request.GET.get('start_point', date.today().strftime("%Y-%m-%d")[:-2] + "01")
     start_date  = start_point
     
     if start_point != "*":
         start_point = date(*[int(x) for x in start_point.split('-')])
-        transactions = transactions.filter(on__gte=start_point)
     
     # stop point    
     stop_point  = request.GET.get('stop_point', date.today().strftime("%Y-%m-%d"))
@@ -217,7 +204,6 @@ def group_transactions_monthly_split(request, group):
 
     if stop_point != "*":
         stop_point = date(*[int(x) for x in stop_point.split('-')])
-        transactions = transactions.filter(on__lte=stop_point)
     
     members = { 
         member.username : {
@@ -229,6 +215,12 @@ def group_transactions_monthly_split(request, group):
     total_saved_amount = 0              # total amount given by all the members
     total_spend_amount = 0              # total amount spend by group
     
+    transactions = group.transactions.filter(  
+            of_group=group,                                 # filter by group
+            on__gte=start_point,                            # filter by start point 
+            on__lte=stop_point,                             # filter by stop point
+        ).select_related('by').prefetch_related('share_to')
+    
     for transaction in transactions:
         
         # if transaction for is savings then add to total amount not to total spend amount
@@ -236,19 +228,15 @@ def group_transactions_monthly_split(request, group):
             members[transaction.by.username]['given'] += transaction.amount # add to user given amount
             total_saved_amount += transaction.amount                         # add to total amount
 
-            print("transaction for savings ", transaction.amount, total_saved_amount, total_spend_amount)
         else:
             # if transaction by is member then add to individual given amount
             if transaction.by.username != "savings":
                 members[transaction.by.username]['given'] += transaction.amount # add to user given amount
                 total_spend_amount += transaction.amount 
 
-                print("transaction by member ", transaction.amount, total_saved_amount, total_spend_amount)
             else: 
                 total_saved_amount -= transaction.amount
                 total_spend_amount += transaction.amount
-
-                print("transaction by savings ", transaction.amount, total_saved_amount, total_spend_amount)
 
             # split the amount to all the shared members
             for user in transaction.share_to.all():     # for each shared member
@@ -263,7 +251,6 @@ def group_transactions_monthly_split(request, group):
         data[member] = {
             'given' : money['given'],
             'share' : money['share'],
-            # 'extra' : money['given'] - money['share'],
             'get' : 0,
             'pay' : 0,
         }
