@@ -106,7 +106,7 @@ def add_group_transaction_view(request, group):
 
 @login_required
 @group_member_login_required
-def api_group_transactions_view(request, id):
+def api_group_transactions_view(request, group):
     if request.method == "POST":
         request_POST = {x : y for x, y in request.POST.lists()}
         request.POST = request.POST.dict()
