@@ -104,9 +104,9 @@ def add_group_transaction_view(request, group):
         'transaction' : Transaction.objects.filter(id = request.GET.get('id')).first() if "id" in request.GET else None,
     })
 
+@login_required
+@group_member_login_required
 def api_group_transactions_view(request, id):
-    group = Group.objects.get(id = id)
-
     if request.method == "POST":
         request_POST = {x : y for x, y in request.POST.lists()}
         request.POST = request.POST.dict()
@@ -174,14 +174,21 @@ def api_group_transactions_view(request, id):
         if stop_point != "*":
             stop_point = date(*[int(x) for x in stop_point.split('-')])
         
-        # fetch transactions and return
-        transactions = Transaction.objects.filter(  
-            of_group=group,                                 # filter by group
-            on__gte=start_point,                            # filter by start point 
-            on__lte=stop_point,                             # filter by stop point
-        ).select_related('by').order_by('-on', '-id')       # order by date and id
+        transactions = group.transactions.filter(
+                on__range=[start_point, stop_point]
+            ).select_related(
+                'by', 'added_by'
+            ).prefetch_related(
+                'share_to'
+            ).order_by(
+                '-on', '-id'
+            )
 
-        json = serializers.serialize("json", transactions, use_natural_foreign_keys=True)
+        json = serializers.serialize(
+            "json", 
+            transactions,
+            use_natural_foreign_keys = True
+        )
         return HttpResponse(json) 
 
     except Exception as e:
