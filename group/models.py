@@ -15,7 +15,8 @@ class Group(models.Model):
                     error_messages={
                         "unique": _("A group with that groupname already exists."),
                     },
-                    max_length = 30
+                    max_length = 30,
+                    db_index = True
                 )
     created_by  = models.ForeignKey("core.User", on_delete = models.SET_NULL, null = True)
     created_on  = models.DateTimeField(default = timezone.now)
@@ -84,6 +85,7 @@ class Group(models.Model):
         self.savings = self.get_savings_amount
         self.save()
     
+    
 class Transaction(models.Model):
     """
         Transaction Model
@@ -92,7 +94,7 @@ class Transaction(models.Model):
     by              = models.ForeignKey("core.User", on_delete = models.SET_NULL, null = True, related_name = "by")
     to              = models.CharField(verbose_name = "to" , max_length = 60) 
     amount          = models.PositiveIntegerField()
-    of_group        = models.ForeignKey(Group, on_delete = models.SET_NULL, null=True, related_name = "transactions")
+    of_group        = models.ForeignKey(Group, on_delete = models.SET_NULL, null=True, related_name = "transactions", related_query_name = "transactions", db_index = True)
     on              = models.DateField(default = timezone.now)
     added_by        = models.ForeignKey("core.User", on_delete = models.CASCADE, related_name = "added_by") 
     share_to        = models.ManyToManyField("core.User", related_name = "share_to")
