@@ -69,18 +69,20 @@ class Group(models.Model):
 
     @property
     def get_savings_amount(self):
-        savings_user = User.objects.get(username="savings")
+        savings_amount = 0
+        savings_user = User.objects.get(username = "savings")
 
-        savings_received = self.transactions.filter(
-            models.Q(transaction_for="savings")
-        ).aggregate(total_savings_received = models.Sum('amount'))['total_savings_received'] or 0
+        for transaction in self.transactions.all():
+            if transaction.transaction_for != "savings" and transaction.by != savings_user:
+                continue
 
-        savings_sent = self.transactions.filter(
-            models.Q(transaction_by=savings_user)
-        ).aggregate(total_savings_sent=models.Sum('amount'))['total_savings_sent'] or 0
+            if transaction.transaction_for == "savings":
+                savings_amount += transaction.amount
+            if transaction.by == savings_user:
+                savings_amount -= transaction.amount 
 
-        return savings_received - savings_sent
-
+        return savings_amount
+        
     def update_savings_amount(self):
         self.savings = self.get_savings_amount
         self.save()
