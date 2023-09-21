@@ -103,12 +103,14 @@ def add_group_transaction_view(request, group):
 def info_group_transaction_view(request, group):
     if "id" not in request.GET:
         return redirect(to = f'/group/{group.id}/transactions')
-    print(request.GET.get('id'))
+        
     return render(request, 'pages/add_transaction.html', {
         'group' : group,
         'title' : f'Transaction Info of {group.name} Group',
         'is_individual_group' : len(group.get_members) == 1,
         'transaction' : Transaction.objects.get(id = request.GET.get('id')),
+        'savings' : User.objects.get(username = "savings"),
+        'transaction' : Transaction.objects.filter(id = request.GET.get('id')).first() if "id" in request.GET else None,
     })
 
 def api_group_transactions_view(request, id):
@@ -131,19 +133,50 @@ def api_group_transactions_view(request, id):
         if request.POST.get("action") == "delete":
             transaction.delete()
             return redirect(to = f'/group/{group.id}/transactions')
+        
+        savings_account_balance     = group.savings
 
+        old_transaction_amount = transaction.amount if transaction.id is not None else 0
+
+    
         transaction.transaction_for = request.POST.get("for")
         transaction.by              = User.objects.get(username = request.POST.get("by"))
         transaction.to              = request.POST.get("to")
         transaction.of_group        = group
-        transaction.amount          = request.POST.get("amount")
+        transaction.amount          = int(request.POST.get("amount"))
         transaction.on              = request.POST.get("on")
         transaction.added_by        = request.user
-        transaction.save()
 
+        
+        if request.POST.get("is_it_for_savings", "off") == "on":
+            transaction.transaction_for = "savings"
+            transaction.to = "savings"
+
+        transaction.save()
+        
         transaction.share_to.clear()
-        share_to = [User.objects.get(username = username) for username in request_POST.get("share_to", [])]
+
+        if "share_to" in request_POST:
+            share_to = [User.objects.get(username = username) for username in request_POST.get("share_to", [])]
+        else:
+            share_to = group.get_members
+
         transaction.share_to.add(*share_to)
+
+        print("adding to savings")
+        change_amount = transaction.amount - old_transaction_amount
+        print("change_amount ", change_amount)
+
+        print(transaction, transaction.transaction_for, transaction.by)
+        if transaction.transaction_for == "savings":
+            savings_account_balance += change_amount
+            print("savings_account_balance after adding ", savings_account_balance)
+        if transaction.by.username == "savings":
+            savings_account_balance -= change_amount
+            print("savings_account_balance after using ", savings_account_balance)
+
+        group.savings = savings_account_balance
+        group.save()
 
         return redirect(to = f'/group/{group.id}/transactions')
 
@@ -214,37 +247,57 @@ def group_transactions_monthly_split(request, group):
     if stop_point != "*":
         stop_point = date(*[int(x) for x in stop_point.split('-')])
         transactions = transactions.filter(on__lte=stop_point)
-        
+    
     members = { 
         member.username : {
-            'spend' : 0,
+            'given' : 0,
             'share' : 0,
-        } for member in group.get_members 
+        } for member in group.get_members
     }
     
+    total_amount = 0            # total amount given by all the members
+    total_spend_amount = 0      # total amount spend by group
+    
     for transaction in transactions:
-        members[transaction.by.username]['spend'] += transaction.amount
-        for user in transaction.share_to.all():
-            members[user.username]['share'] += transaction.amount / len(transaction.share_to.all())
+        
+        # if transaction for is savings then add to total amount not to total spend amount
+        if transaction.transaction_for == "savings":
+            members[transaction.by.username]['given'] += transaction.amount # add to user given amount
+            total_amount += transaction.amount                              # add to total amount
+
+            continue
+        
+        # if transaction by is member then add to individual given amount
+        if transaction.by.username != "savings":
+            members[transaction.by.username]['given'] += transaction.amount # add to user given amount
+    
+        # wheather transaction by is savings or by user then add to total spend amount not to total amount
+        total_spend_amount += transaction.amount    # add to total spend amount
+        total_amount += transaction.amount          # add to total amount 
+        
+        # split the amount to all the shared members
+        for user in transaction.share_to.all():     # for each shared member
+            members[user.username]['share'] += transaction.amount / len(transaction.share_to.all()) # add to shared amount
+
 
     rows = []
-    total_amount = 0
     for member, money in members.items():
-        total_amount += money['spend']
         money['share'] = int(money['share'])
 
         rows.append([
             member, 
-            money['spend'],
+            money['given'],
             money['share'], 
-            0 if money['share'] >  money['spend'] else money['spend'] - money['share'],
-            0 if money['share'] <  money['spend'] else money['share'] - money['spend'],
+            0 if money['share'] >  money['given'] else money['given'] - money['share'],
+            0 if money['share'] <  money['given'] else money['share'] - money['given'],
         ])
     
     
     return render(request, 'pages/transactions_split.html', {
         'rows' : rows,
-        'total': total_amount,
+        'total_amount': total_amount,
+        'total_spend_amount' : total_spend_amount,
+        'total_savings' : total_amount - total_spend_amount,
         'start_point' : start_date,
         'stop_point' : stop_date,
         'group' : group,

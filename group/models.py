@@ -20,18 +20,31 @@ class Group(models.Model):
                 )
     created_by  = models.ForeignKey("core.User", on_delete = models.SET_NULL, null = True)
     created_on  = models.DateTimeField(default = timezone.now)
+<<<<<<< HEAD
     savings     = models.PositiveIntegerField(verbose_name = "Savings", default = 0)
     maintainer  = models.ForeignKey(
                     "core.User", 
                     verbose_name = "Savings Account Maintainer", 
                     on_delete = models.SET_NULL,
+=======
+    savings     = models.IntegerField(verbose_name = "Savings", default = 0)
+    maintainer  = models.ForeignKey(
+                    "core.User", 
+                    verbose_name = "Savings Account Maintainer", 
+                    on_delete = models.CASCADE,
+>>>>>>> master
                     related_name = "maintaining_groups",
                     related_query_name = "maintaining_groups",
                     blank = True,
                     null = True
                 )
+<<<<<<< HEAD
     inactive_members = models.ManyToManyField("core.User", related_name = "inactive_groups", blank = True)
     
+=======
+    
+
+>>>>>>> master
     def __str__(self):
         return f"{self.name} created by {self.created_by}"
 
@@ -63,13 +76,20 @@ class Group(models.Model):
         self.members.add(user)
         
     def add_members(self, users):
+<<<<<<< HEAD
         user_ids = users.values_list('id', flat=True)
         self.members.add(*user_ids)
         self.members.filter(id__in=user_ids).update(group=self)
+=======
+        for user in users:
+            user.groups.add(self)
+            user.save()
+>>>>>>> master
 
     @property
     def get_savings_amount(self):
         savings_amount = 0
+<<<<<<< HEAD
         savings_user = User.objects.get(username = "savings")
 
         for transaction in self.transactions.all():
@@ -83,11 +103,28 @@ class Group(models.Model):
 
         return savings_amount
         
+=======
+        
+        for transaction in self.transactions.all():
+            if transaction.transaction_for != "savings" and transaction.by != User.objects.get("savings"):
+                continue
+
+            if transaction.transaction_for == "savings":
+                savings_amount += transaction.amount
+            if transaction.by == "savings":
+                savings_amount -= transaction.amount 
+
+            print("debugger")
+             
+>>>>>>> master
     def update_savings_amount(self):
         self.savings = self.get_savings_amount
         self.save()
     
+<<<<<<< HEAD
     
+=======
+>>>>>>> master
 class Transaction(models.Model):
     """
         Transaction Model
@@ -105,6 +142,16 @@ class Transaction(models.Model):
         return f"transaction for {self.transaction_for} by {self.by} on {self.on} to {self.to} of amount {self.amount}"
     
     def save(self, *args, **kwargs):
+<<<<<<< HEAD
+=======
+        # if self.id is None:
+        #     if self.transaction_for == "savings" and self.amount > 0:
+        #         self.of_group.savings += self.amount
+                
+        # else:
+        #     self.of_group.update_savings_amount()
+
+>>>>>>> master
         super().save(*args, **kwargs)
     
     def delete(self, *args, **kwargs):
@@ -114,3 +161,7 @@ class Transaction(models.Model):
             self.of_group.savings += self.amount
         self.of_group.save()
         super().delete(*args, **kwargs)
+<<<<<<< HEAD
+=======
+
+>>>>>>> master

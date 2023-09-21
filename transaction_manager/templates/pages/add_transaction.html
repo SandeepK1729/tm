@@ -90,11 +90,14 @@
                                 <label for="for">By</label>
                                 
                                 <select  required autofocus class="" name="by" id="by">
+                                    {% if user != group.maintainer %}
+                                        <option value="{{ savings.username }}"  class="text-center" {% if transaction.by == savings %}selected{% endif %}>{{ savings.username }}</option>
+                                    {% endif %}
                                     {% for member in group.get_members %}
                                         {% if member != user %}
                                             <option value="{{ member.username }}"  class="text-center" {% if transaction.by == member %}selected{% endif %}>{{ member.username }}</option>
                                         {% else %}
-                                            {% if is_individual_group %}
+                                            {% if is_individual_group or user == group.maintainer %}
                                                 <option value="{{ user.username }}"    class="text-center" {% if transaction.by == member %}selected{% endif %}> You </option>  
                                             {% endif %}  
                                         {% endif %}
@@ -116,8 +119,21 @@
                                 <label for="amount">Amount</label>
                                 <input type="number" required autofocus class="form-control" name="amount" id="amount" placeholder="transaction amount" value="{{ transaction.amount }}">
                             </div>
+
+                            {% if user == group.maintainer %}
+                                <div class="form-group mt-2">
+                                    <label for="saving">Is it for savings : </label>
+                                    <input 
+                                        type="checkbox" 
+                                        name="is_it_for_savings"
+                                        {% if transaction.for == savings.username %} checked {% endif %}
+                                        id="saving_transaction"
+                                        
+                                    >
+                                </div>
+                            {% endif %}
                             
-                            <div class="form-group">
+                            <div class="form-group show_list" >
                                 <label for="share_to">Share To</label>
 
                                 <div class="checkbox-parent">
@@ -125,6 +141,7 @@
                                         <input 
                                             type="checkbox" 
                                             id="all_options"
+                                            checked
                                         />
                                         <div>
                                             <span>
@@ -173,11 +190,40 @@
             $("#on").val(today);
         {% endif %}
 
-        $('#all_options').change(function() {
-            var isChecked = $(this).is(':checked');
+        function change_checkboxes() {
+            var isChecked = $("#all_options").is(':checked');
             $('.share_options').prop('checked', isChecked);
+        }
+        $('#all_options').change(change_checkboxes);
+        change_checkboxes();
+
+        let is_toggle = $("#saving_transaction");
+        let for_input = $("#for");
+        let to_input  = $("#to");
+        let show_list = $(".show_list");
+
+        $("#saving_transaction").on("change", function toggleTransactionFor() {
+            
+            if(is_toggle.is(":checked")) {
+                for_input.val("{{ savings.username }}");
+                for_input.attr('disabled', 'disabled');
+
+                to_input.val("{{ savings.username }}");
+                to_input.attr('disabled', 'disabled');
+
+                show_list.hide();
+            }
+            else {
+                for_input.val("");
+                for_input.removeAttr('disabled')
+
+                to_input.val("");
+                to_input.removeAttr('disabled')
+
+                show_list.show();
+            }
         });
 
     })
 </script>
-{% endblock body %}
+{% endblock %}
