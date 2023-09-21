@@ -196,10 +196,16 @@ def api_group_transactions_view(request, group):
 
         if stop_point != "*":
             stop_point = date(*[int(x) for x in stop_point.split('-')])
-            transactions = transactions.filter(on__lte=stop_point)
         
-        # trasaction ordering on descending time
-        transactions = transactions.order_by('-on')
+        transactions = group.transactions.filter(
+                on__range=[start_point, stop_point]
+            ).select_related(
+                'by', 'added_by'
+            ).prefetch_related(
+                'share_to'
+            ).order_by(
+                '-on', '-id'
+            )
 
         json = serializers.serialize(
             "json", 
