@@ -345,4 +345,8 @@ def group_transactions_monthly_split(request, group):
         'title'                 : f'{group.name} Group Transactions Split'
     })
 
-    
+@login_required
+@group_member_login_required
+def recalculate_savings(request, group):
+    group.update_savings_amount()
+    return HttpResponse(group.savings, status = 200)
