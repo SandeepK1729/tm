@@ -103,6 +103,7 @@ def add_group_transaction_view(request, group):
         'group' : group,
         'title' : f'Add Transaction in {group.name} Group',
         'is_individual_group' : len(group.get_members) == 1,
+        'savings' : User.objects.get(username = "savings"),
         'transaction' : None,
     })
     

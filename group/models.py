@@ -24,7 +24,11 @@ class Group(models.Model):
     maintainer  = models.ForeignKey(
                     "core.User", 
                     verbose_name = "Savings Account Maintainer", 
-                    on_delete = models.SET_NULL
+                    on_delete = models.SET_NULL,
+                    related_name = "maintaining_groups",
+                    related_query_name = "maintaining_groups",
+                    blank = True,
+                    null = True
                 )
     inactive_members = models.ManyToManyField("core.User", related_name = "inactive_groups", blank = True)
     
