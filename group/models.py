@@ -42,7 +42,7 @@ class Group(models.Model):
         Returns:
             list[User Object]: list of users
         """
-        return [x for x in self.members.all().order_by('id')]
+        return [x for x in self.members.all().order_by('first_name')]
     
     @property
     def get_active_members(self):
@@ -105,13 +105,6 @@ class Transaction(models.Model):
         return f"transaction for {self.transaction_for} by {self.by} on {self.on} to {self.to} of amount {self.amount}"
     
     def save(self, *args, **kwargs):
-        # if self.id is None:
-        #     if self.transaction_for == "savings" and self.amount > 0:
-        #         self.of_group.savings += self.amount
-                
-        # else:
-        #     self.of_group.update_savings_amount()
-
         super().save(*args, **kwargs)
     
     def delete(self, *args, **kwargs):
@@ -121,4 +114,3 @@ class Transaction(models.Model):
             self.of_group.savings += self.amount
         self.of_group.save()
         super().delete(*args, **kwargs)
-

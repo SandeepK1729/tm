@@ -14,15 +14,18 @@ from .helper                        import round_up
 def groups_view(request):
     context = {
         'title' : "Groups",
+        'groups' : request.user.groups.all().select_related('created_by').order_by('-id'),
     }
+    
     if request.method == "POST":
         try:
             group = Group.objects.create(name = request.POST.get("group_name"), created_by = request.user)
             group.save()
             context['message'] = f"Group named {group.name} created successfully"
         except Exception as e:
-            context['message'] = f"Group not created, because of {e}"      
+            context['message'] = f"Group not created, because of {e}" 
 
+    context['groups'] = request.user.groups.all().select_related('created_by').order_by('-id')
     return render(request, "pages/groups.html", context)
 
 @login_required
@@ -100,6 +103,20 @@ def add_group_transaction_view(request, group):
         'group' : group,
         'title' : f'Add Transaction in {group.name} Group',
         'is_individual_group' : len(group.get_members) == 1,
+        'transaction' : None,
+    })
+    
+@login_required
+@group_member_login_required
+def info_group_transaction_view(request, group):
+    if "id" not in request.GET:
+        return redirect(to = f'/group/{group.id}/transactions')
+        
+    return render(request, 'pages/add_transaction.html', {
+        'group' : group,
+        'title' : f'Transaction Info of {group.name} Group',
+        'is_individual_group' : len(group.get_members) == 1,
+        'transaction' : Transaction.objects.get(id = request.GET.get('id')),
         'savings' : User.objects.get(username = "savings"),
         'transaction' : Transaction.objects.filter(id = request.GET.get('id')).first() if "id" in request.GET else None,
     })
@@ -112,7 +129,14 @@ def api_group_transactions_view(request, group):
         request.POST = request.POST.dict()
         
         transaction_id = int(request.POST.get("transaction_id"))
-        transaction = Transaction() if transaction_id == 0 else Transaction.objects.get(id = transaction_id)
+        transaction = None
+        
+        if transaction_id == 0:
+            transaction = Transaction()
+        else:
+            transaction = Transaction.objects.get(id = transaction_id)
+            if transaction.added_by != request.user:
+                return HttpResponse("You are not allowed to edit this transaction")
 
         if request.POST.get("action") == "delete":
             transaction.delete()
@@ -136,7 +160,6 @@ def api_group_transactions_view(request, group):
             transaction.transaction_for = "savings"
             transaction.to = "savings"
 
-        
         transaction.save()
         
         transaction.share_to.clear()
@@ -149,12 +172,12 @@ def api_group_transactions_view(request, group):
         transaction.share_to.add(*share_to)
 
         change_amount = transaction.amount - old_transaction_amount
-        
+
         if transaction.transaction_for == "savings":
             savings_account_balance += change_amount
         if transaction.by.username == "savings":
             savings_account_balance -= change_amount
-        
+
         group.savings = savings_account_balance
         group.save()
 
@@ -173,16 +196,10 @@ def api_group_transactions_view(request, group):
 
         if stop_point != "*":
             stop_point = date(*[int(x) for x in stop_point.split('-')])
+            transactions = transactions.filter(on__lte=stop_point)
         
-        transactions = group.transactions.filter(
-                on__range=[start_point, stop_point]
-            ).select_related(
-                'by', 'added_by'
-            ).prefetch_related(
-                'share_to'
-            ).order_by(
-                '-on', '-id'
-            )
+        # trasaction ordering on descending time
+        transactions = transactions.order_by('-on')
 
         json = serializers.serialize(
             "json", 

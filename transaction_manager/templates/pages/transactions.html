@@ -135,11 +135,15 @@
                 
                 if(is_owner) {
                     re += `
-                        <td class="" style="gap:1px;height:100%;display:flex;">
-                            <a class="btn btn-success w-50" href="{% url 'add transaction' group.id %}?id=${data[i].pk}" >
-                                <i class="fa-regular fa-pen-to-square"></i>
+                        <td class="" style="gap:2px;height:100%;display:flex;">
+                            <a class="btn btn-success w-50" href="{% url 'info transaction' group.id %}?id=${data[i].pk}" >
+                                <i class="fa-regular fa-square-info"></i>
                             </a>
-                            <form class="w-50" action="{% url 'transactions api' group.id %}" method="POST">
+                            <form 
+                                class="w-50" action="{% url 'transactions api' group.id %}" 
+                                method="POST"
+                                onSubmit="if(!confirm('Do you want to delete this transaction ?')){return false;}"
+                            >
                                 {% csrf_token %}
                                 <input type="hidden" name="transaction_id" value="${data[i].pk}"/>
                                 <input type="hidden" name="action" value="delete"/>
@@ -151,7 +155,11 @@
                     `;
                 } else {
                     re += `
-                        <td></td>
+                    <td class="" style="gap:1px;height:100%;display:flex;">
+                        <a class="btn btn-success w-100" href="{% url 'info transaction' group.id %}?id=${data[i].pk}" >
+                            <i class="fa-regular fa-square-info"></i>
+                        </a>
+                    </td>
                     `;
                 }
                 tr.innerHTML = re;
