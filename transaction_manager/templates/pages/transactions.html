@@ -136,8 +136,8 @@
                 if(is_owner) {
                     re += `
                         <td class="" style="gap:2px;height:100%;display:flex;">
-                            <a class="btn btn-success w-50" href="{% url 'info transaction' group.id %}?id=${data[i].pk}" >
-                                <i class="fa-regular fa-square-info"></i>
+                            <a class="btn btn-success w-50" href="{% url 'add transaction' group.id %}?id=${data[i].pk}" >
+                                <i class="fa-regular fa-pen-to-square"></i>
                             </a>
                             <form 
                                 class="w-50" action="{% url 'transactions api' group.id %}" 
@@ -155,11 +155,7 @@
                     `;
                 } else {
                     re += `
-                    <td class="" style="gap:1px;height:100%;display:flex;">
-                        <a class="btn btn-success w-100" href="{% url 'info transaction' group.id %}?id=${data[i].pk}" >
-                            <i class="fa-regular fa-square-info"></i>
-                        </a>
-                    </td>
+                    <td></td>
                     `;
                 }
                 tr.innerHTML = re;
