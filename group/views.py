@@ -13,15 +13,19 @@ from time                           import sleep
 def groups_view(request):
     context = {
         'title' : "Groups",
+        'groups' : request.user.groups.all().select_related('created_by').order_by('-id'),
     }
+    
     if request.method == "POST":
         try:
-            group = Group(name = request.POST.get("group_name"), created_by = request.user).order_by('-id')
+            group = Group.objects.create(name = request.POST.get("group_name"), created_by = request.user)
             group.save()
             context['message'] = f"Group named {group.name} created successfully"
         except Exception as e:
-            context['message'] = f"Group not created, because of {e}"      
+            context['message'] = f"Group not created, because of {e}" 
+            print("error :", context['message'])     
 
+    context['groups'] = request.user.groups.all().select_related('created_by').order_by('-id')
     return render(request, "pages/groups.html", context)
 
 @login_required
