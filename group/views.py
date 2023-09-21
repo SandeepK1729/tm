@@ -24,7 +24,6 @@ def groups_view(request):
             context['message'] = f"Group named {group.name} created successfully"
         except Exception as e:
             context['message'] = f"Group not created, because of {e}" 
-            print("error :", context['message'])     
 
     context['groups'] = request.user.groups.all().select_related('created_by').order_by('-id')
     return render(request, "pages/groups.html", context)
@@ -173,14 +172,11 @@ def api_group_transactions_view(request, group):
         transaction.share_to.add(*share_to)
 
         change_amount = transaction.amount - old_transaction_amount
-        print("change_amount ", change_amount)
 
-        print(transaction, transaction.transaction_for, transaction.by)
         if transaction.transaction_for == "savings":
             savings_account_balance += change_amount
         if transaction.by.username == "savings":
             savings_account_balance -= change_amount
-            print("savings_account_balance after using ", savings_account_balance)
 
         group.savings = savings_account_balance
         group.save()
@@ -201,21 +197,6 @@ def api_group_transactions_view(request, group):
         if stop_point != "*":
             stop_point = date(*[int(x) for x in stop_point.split('-')])
             transactions = transactions.filter(on__lte=stop_point)
-        
-
-        # # user filter
-        # username = request.GET.get('username', '*')
-
-        # if username != "*":
-        #     user = User.objects.get(username = username)
-        #     transactions = transactions.filter(by = user)
-
-        # # share to filter
-        # share_to = request.GET.get('share_to', '*')
-
-        # if share_to != "*":
-        #     user = User.objects.get(username = share_to)
-        #     transactions = transactions.filter(share_to = user)
         
         # trasaction ordering on descending time
         transactions = transactions.order_by('-on')

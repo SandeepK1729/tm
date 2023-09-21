@@ -54,16 +54,6 @@ class Group(models.Model):
         inactive_members = self.inactive_members.all()
         return [x for x in self.get_members if x not in inactive_members]
     
-    @property
-    def get_active_members(self):
-        """get all active members associated with group
-
-        Returns:
-            list[User Object]: list of users
-        """
-        inactive_members = self.inactive_members.all()
-        return [x for x in self.get_members if x not in inactive_members]
-    
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.maintainer = self.created_by
