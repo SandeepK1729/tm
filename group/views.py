@@ -7,7 +7,8 @@ from .decorators                    import group_member_login_required
 
 from core.models                    import User 
 from datetime                       import date
-from time                           import sleep
+
+from .helper                        import round_up
 
 @login_required
 def groups_view(request):
@@ -46,9 +47,8 @@ def group_view(request, group):
             user = None
             try:
                 user = User.objects.get(username = username)
-            except Exception as e:
-                if user is None:
-                    context['not_exist'].append(username)
+            except User.DoesNotExist:
+                context['not_exist'].append(username)
                 
             else:
                 if user in group.get_members:
@@ -69,6 +69,14 @@ def group_view(request, group):
 
 @login_required
 @group_member_login_required
+def group_settings_view(request, group):
+    return render(request, "pages/group_settings.html", {
+        'group' : group,
+        'title' : f"{group.name} Group Settings",
+    })
+
+@login_required
+@group_member_login_required
 def remove_group_member(request, group, username):
     try:
         user = User.objects.get(username = username)
@@ -85,7 +93,8 @@ def remove_group_member(request, group, username):
 def group_transactions_view(request, group):
     return render(request, 'pages/transactions.html', {
         'group' : group,
-        'title' : f'{group.name} Group Transactions'    
+        'title' : f'{group.name} Group Transactions',
+        'savings' : User.objects.get(username = "savings")
     })
 
 @login_required
@@ -113,9 +122,9 @@ def info_group_transaction_view(request, group):
         'transaction' : Transaction.objects.filter(id = request.GET.get('id')).first() if "id" in request.GET else None,
     })
 
-def api_group_transactions_view(request, id):
-    group = Group.objects.get(id = id)
-
+@login_required
+@group_member_login_required
+def api_group_transactions_view(request, group):
     if request.method == "POST":
         request_POST = {x : y for x, y in request.POST.lists()}
         request.POST = request.POST.dict()
@@ -164,11 +173,14 @@ def api_group_transactions_view(request, id):
         transaction.share_to.add(*share_to)
 
         change_amount = transaction.amount - old_transaction_amount
+        print("change_amount ", change_amount)
 
+        print(transaction, transaction.transaction_for, transaction.by)
         if transaction.transaction_for == "savings":
             savings_account_balance += change_amount
         if transaction.by.username == "savings":
             savings_account_balance -= change_amount
+            print("savings_account_balance after using ", savings_account_balance)
 
         group.savings = savings_account_balance
         group.save()
@@ -176,16 +188,12 @@ def api_group_transactions_view(request, id):
         return redirect(to = f'/group/{group.id}/transactions')
 
     try:
-        # fetch transactions and return
-        transactions = Transaction.objects.filter(of_group = group)
-
         # date based filtering on transactions
         # start point
         start_point = request.GET.get('start_date', '*')
 
         if start_point != "*":
             start_point = date(*[int(x) for x in start_point.split('-')])
-            transactions = transactions.filter(on__gte=start_point)
         
         # stop point
         stop_point  = request.GET.get('stop_date', '*')
@@ -194,31 +202,44 @@ def api_group_transactions_view(request, id):
             stop_point = date(*[int(x) for x in stop_point.split('-')])
             transactions = transactions.filter(on__lte=stop_point)
         
+
+        # # user filter
+        # username = request.GET.get('username', '*')
+
+        # if username != "*":
+        #     user = User.objects.get(username = username)
+        #     transactions = transactions.filter(by = user)
+
+        # # share to filter
+        # share_to = request.GET.get('share_to', '*')
+
+        # if share_to != "*":
+        #     user = User.objects.get(username = share_to)
+        #     transactions = transactions.filter(share_to = user)
+        
         # trasaction ordering on descending time
         transactions = transactions.order_by('-on')
 
-        json = serializers.serialize("json", transactions, use_natural_foreign_keys=True)
+        json = serializers.serialize(
+            "json", 
+            transactions,
+            use_natural_foreign_keys = True
+        )
         return HttpResponse(json) 
 
     except Exception as e:
-        print(e, end = "\n" * 3)
         return HttpResponse("")
 
 @login_required
 @group_member_login_required
 def group_transactions_monthly_split(request, group):
-
-    # fetch transactions and return
-    transactions = group.transactions.all()
-
-    # date based filtering on transactions
+    # # date based filtering on transactions
     # start point
     start_point = request.GET.get('start_point', date.today().strftime("%Y-%m-%d")[:-2] + "01")
     start_date  = start_point
     
     if start_point != "*":
         start_point = date(*[int(x) for x in start_point.split('-')])
-        transactions = transactions.filter(on__gte=start_point)
     
     # stop point    
     stop_point  = request.GET.get('stop_point', date.today().strftime("%Y-%m-%d"))
@@ -226,7 +247,6 @@ def group_transactions_monthly_split(request, group):
 
     if stop_point != "*":
         stop_point = date(*[int(x) for x in stop_point.split('-')])
-        transactions = transactions.filter(on__lte=stop_point)
     
     members = { 
         member.username : {
@@ -235,51 +255,94 @@ def group_transactions_monthly_split(request, group):
         } for member in group.get_members
     }
     
-    total_amount = 0            # total amount given by all the members
-    total_spend_amount = 0      # total amount spend by group
+    total_saved_amount = 0              # total amount given by all the members
+    total_spend_amount = 0              # total amount spend by group
+    
+    transactions = group.transactions.filter(  
+            of_group=group,                                 # filter by group
+            on__gte=start_point,                            # filter by start point 
+            on__lte=stop_point,                             # filter by stop point
+        ).select_related('by').prefetch_related('share_to')
     
     for transaction in transactions:
         
         # if transaction for is savings then add to total amount not to total spend amount
         if transaction.transaction_for == "savings":
             members[transaction.by.username]['given'] += transaction.amount # add to user given amount
-            total_amount += transaction.amount                              # add to total amount
+            total_saved_amount += transaction.amount                         # add to total amount
 
-            continue
-        
-        # if transaction by is member then add to individual given amount
-        if transaction.by.username != "savings":
-            members[transaction.by.username]['given'] += transaction.amount # add to user given amount
+        else:
+            # if transaction by is member then add to individual given amount
+            if transaction.by.username != "savings":
+                members[transaction.by.username]['given'] += transaction.amount # add to user given amount
+                total_spend_amount += transaction.amount 
+
+            else: 
+                total_saved_amount -= transaction.amount
+                total_spend_amount += transaction.amount
+
+            # split the amount to all the shared members
+            for user in transaction.share_to.all():     # for each shared member
+                members[user.username]['share'] += transaction.amount / len(transaction.share_to.all()) # add to shared amount
+
     
-        # wheather transaction by is savings or by user then add to total spend amount not to total amount
-        total_spend_amount += transaction.amount    # add to total spend amount
-        total_amount += transaction.amount          # add to total amount 
-        
-        # split the amount to all the shared members
-        for user in transaction.share_to.all():     # for each shared member
-            members[user.username]['share'] += transaction.amount / len(transaction.share_to.all()) # add to shared amount
-
-
-    rows = []
+    data = {}
+    total_amount = 0
     for member, money in members.items():
-        money['share'] = int(money['share'])
+        money['share'] = round_up(money['share'])
 
-        rows.append([
-            member, 
-            money['given'],
-            money['share'], 
-            0 if money['share'] >  money['given'] else money['given'] - money['share'],
-            0 if money['share'] <  money['given'] else money['share'] - money['given'],
-        ])
+        data[member] = {
+            'given' : money['given'],
+            'share' : money['share'],
+            'get' : 0,
+            'pay' : 0,
+        }
+
+        total_amount += money['given']
     
-    
+    # get the active members
+    active_members = [
+        member.username
+        for member in group.get_members
+        if members[member.username]['share'] > 0
+    ]
+    active_members_count = len(active_members)
+    if active_members_count == 0:
+        # return HttpResponse("No active members")
+        active_members_count = 1
+
+    # split the total saved amount to all the active members
+    savings_share_amount = round_up(total_saved_amount / active_members_count)
+
+    # add the share amount to all the active members
+    for member in active_members:
+        # given + pay = share + get
+        # given - share = get - pay
+        # extra = given - share  = get - pay
+
+        # data[member]['share'] += savings_share_amount
+        data[member]['extra']   = data[member]['given'] - data[member]['share']
+
+        # get_amount
+        if data[member]['extra'] > 0:
+            data[member]['get'] = data[member]['extra']
+            data[member]['pay'] = 0
+        # pay_amount
+        else:
+            data[member]['get'] = 0
+            data[member]['pay'] = abs(data[member]['extra'])
+        
+        data[member].pop('extra')
+
     return render(request, 'pages/transactions_split.html', {
-        'rows' : rows,
-        'total_amount': total_amount,
-        'total_spend_amount' : total_spend_amount,
-        'total_savings' : total_amount - total_spend_amount,
-        'start_point' : start_date,
-        'stop_point' : stop_date,
-        'group' : group,
-        'title' : f'{group.name} Group Transactions Split'
+        'data'                  : data,
+        'total_amount'          : total_amount,
+        'total_spend_amount'    : total_spend_amount,
+        'total_savings'         : total_saved_amount,
+        'start_point'           : start_date,
+        'stop_point'            : stop_date,
+        'group'                 : group,
+        'title'                 : f'{group.name} Group Transactions Split'
     })
+
+    

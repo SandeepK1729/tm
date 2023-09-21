@@ -141,7 +141,6 @@
                                         <input 
                                             type="checkbox" 
                                             id="all_options"
-                                            checked
                                         />
                                         <div>
                                             <span>
@@ -156,7 +155,7 @@
                                                 name="share_to" 
                                                 class="share_options"
                                                 value="{{ member.username }}"
-                                                {% if member in transaction.share_to.all %}
+                                                {% if member in transaction.share_to.all or member in group.get_active_members %}
                                                         checked
                                                 {% endif %}
                                             />
@@ -190,13 +189,13 @@
             $("#on").val(today);
         {% endif %}
 
-        function change_checkboxes() {
+        function change_all_checkboxes() {
             var isChecked = $("#all_options").is(':checked');
             $('.share_options').prop('checked', isChecked);
         }
-        $('#all_options').change(change_checkboxes);
-        change_checkboxes();
-
+        
+        $('#all_options').change(change_all_checkboxes);
+        
         let is_toggle = $("#saving_transaction");
         let for_input = $("#for");
         let to_input  = $("#to");

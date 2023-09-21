@@ -17,6 +17,7 @@
                                     <li class="list-group-item mt-0 d-flex justify-content-center d-inline rounded-lg border border-secondary  rounded"> 
                                         {% if member == user %} You {% else %} {{ member.username }} {% endif %} 
                                         {% if member == group.created_by %} (Owner) {% endif %}
+                                        {% if member == group.maintainer %} (Maintainer) {% endif %}
                                         
                                         {% comment %} {% if user == group.created_by and member != user %} 
                                             - <span

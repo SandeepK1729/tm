@@ -20,11 +20,11 @@ class Group(models.Model):
                 )
     created_by  = models.ForeignKey("core.User", on_delete = models.SET_NULL, null = True)
     created_on  = models.DateTimeField(default = timezone.now)
-    savings     = models.IntegerField(verbose_name = "Savings", default = 0)
+    savings     = models.PositiveIntegerField(verbose_name = "Savings", default = 0)
     maintainer  = models.ForeignKey(
                     "core.User", 
                     verbose_name = "Savings Account Maintainer", 
-                    on_delete = models.CASCADE,
+                    on_delete = models.SET_NULL,
                     related_name = "maintaining_groups",
                     related_query_name = "maintaining_groups",
                     blank = True,
@@ -43,6 +43,16 @@ class Group(models.Model):
             list[User Object]: list of users
         """
         return [x for x in self.members.all().order_by('first_name')]
+    
+    @property
+    def get_active_members(self):
+        """get all active members associated with group
+
+        Returns:
+            list[User Object]: list of users
+        """
+        inactive_members = self.inactive_members.all()
+        return [x for x in self.get_members if x not in inactive_members]
     
     @property
     def get_active_members(self):

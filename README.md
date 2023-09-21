@@ -6,9 +6,11 @@ Transaction Manager is a web application developed using Django, HTML, Bootstrap
 
 - User registration and authentication
 - User roles: admin and member
-- Admin can manage groups and members
+- Group admin can manage groups and members
 - Members can view transactions of the group
 - Members can add transactions for others (excluding themselves)
+- Special type of member named Group savings maintainer will be able to add money to savings account
+- Except maintainer, others will able to witness the transactions from savings
 - Transactions are categorized by duration (e.g., daily, weekly, monthly)
 - Transaction details include date, description, amount, and payer
 - Dashboard with an overview of transactions
