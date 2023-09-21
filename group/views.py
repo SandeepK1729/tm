@@ -103,24 +103,10 @@ def add_group_transaction_view(request, group):
         'group' : group,
         'title' : f'Add Transaction in {group.name} Group',
         'is_individual_group' : len(group.get_members) == 1,
+        'savings' : User.objects.get(username = "savings"),
         'transaction' : None,
     })
     
-@login_required
-@group_member_login_required
-def info_group_transaction_view(request, group):
-    if "id" not in request.GET:
-        return redirect(to = f'/group/{group.id}/transactions')
-        
-    return render(request, 'pages/add_transaction.html', {
-        'group' : group,
-        'title' : f'Transaction Info of {group.name} Group',
-        'is_individual_group' : len(group.get_members) == 1,
-        'transaction' : Transaction.objects.get(id = request.GET.get('id')),
-        'savings' : User.objects.get(username = "savings"),
-        'transaction' : Transaction.objects.filter(id = request.GET.get('id')).first() if "id" in request.GET else None,
-    })
-
 @login_required
 @group_member_login_required
 def api_group_transactions_view(request, group):
