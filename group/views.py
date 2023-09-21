@@ -163,17 +163,12 @@ def api_group_transactions_view(request, id):
 
         transaction.share_to.add(*share_to)
 
-        print("adding to savings")
         change_amount = transaction.amount - old_transaction_amount
-        print("change_amount ", change_amount)
 
-        print(transaction, transaction.transaction_for, transaction.by)
         if transaction.transaction_for == "savings":
             savings_account_balance += change_amount
-            print("savings_account_balance after adding ", savings_account_balance)
         if transaction.by.username == "savings":
             savings_account_balance -= change_amount
-            print("savings_account_balance after using ", savings_account_balance)
 
         group.savings = savings_account_balance
         group.save()
@@ -198,21 +193,6 @@ def api_group_transactions_view(request, id):
         if stop_point != "*":
             stop_point = date(*[int(x) for x in stop_point.split('-')])
             transactions = transactions.filter(on__lte=stop_point)
-        
-
-        # # user filter
-        # username = request.GET.get('username', '*')
-
-        # if username != "*":
-        #     user = User.objects.get(username = username)
-        #     transactions = transactions.filter(by = user)
-
-        # # share to filter
-        # share_to = request.GET.get('share_to', '*')
-
-        # if share_to != "*":
-        #     user = User.objects.get(username = share_to)
-        #     transactions = transactions.filter(share_to = user)
         
         # trasaction ordering on descending time
         transactions = transactions.order_by('-on')
@@ -303,5 +283,3 @@ def group_transactions_monthly_split(request, group):
         'group' : group,
         'title' : f'{group.name} Group Transactions Split'
     })
-
-    
