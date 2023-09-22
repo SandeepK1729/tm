@@ -17,50 +17,130 @@
 
           {% if group %}
             
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{% url 'group' group.id %}">{{ group.name }}</a>
+            <li 
+              class="nav-item"
+            >
+              <button
+                class="nav-link active" 
+                aria-current="page" 
+                hx-get="{% url 'group' group.id %}"
+                hx-target="#bodypart"
+                hx-push-url="true"
+              >
+                {{ group.name }}
+              </button>
             </li>
 
             {% if group.savings != 0 %}
-              <li class="nav-item">
-                <a class="nav-link active text-success" id="savings_amount" aria-current="page" href="{% url 'transactions monthly split' group.id %}">Savings : {{ group.savings }}
-                  
-                </a>
+              <li 
+                class="nav-item"
+              >
+                <button 
+                  class="nav-link active text-success" 
+                  id="savings_amount" 
+                  aria-current="page" 
+                >
+                  Savings : {{ group.savings }}
+                </button>
               </li>
 
             {% endif %}
+            
+            <li 
+              class="nav-item"
+            >
+              <button
+                class="nav-link active" 
+                aria-current="page" 
+                hx-get="{% url 'transactions' group.id %}"
+                hx-target="#bodypart"
+                hx-push-url="true"
+              >
+                View Transactions
+              </button>
+            </li>
 
-            
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{% url 'transactions' group.id %}">View Transactions</a>
+            <li 
+              class="nav-item"
+            >
+              <button
+                class="nav-link active" 
+                aria-current="page" 
+                hx-get="{% url 'add transaction' group.id %}"
+                hx-target="#bodypart"
+                hx-push-url="true"
+              >
+                Add Transaction
+              </button>
             </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{% url 'add transaction' group.id %}">Add Transaction</a>
+
+            <li 
+              class="nav-item"
+            >
+              <button 
+                class="nav-link active" 
+                aria-current="page" 
+                hx-get="{% url 'transactions monthly split' group.id %}"
+                hx-target="#bodypart"
+                hx-push-url="true"
+              >
+                Monthly Split
+              </button>
             </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{% url 'transactions monthly split' group.id %}">Monthly Split</a>
+
+            <li 
+              class="nav-item"
+            >
+              <a 
+                class="nav-link active" 
+                aria-current="page" 
+                href="{% url 'groups' %}"
+              >
+                Groups
+              </a>
             </li>
-            
-          {% comment %} {% else %}
-            {% if groups %}
-              
-              <form method="post">
-                <li class="nav-item">
-                  <input class="nav-link active" aria-current="page" type="text" class="form-control" name="group_name" id="group_name" placeholder="name" />
-                </li>
-                <li class="nav-item">
-                  <input class="nav-link active" aria-current="page" type="submit" value="Create Group" class="btn btn-outline-primary">Groups</input>
-                </li>
-              </form>
-              
-            {% endif %} {% endcomment %}
+
+            <li 
+              class="nav-item"
+            >
+              <a 
+                class="nav-link active" 
+                aria-current="page" 
+                href="{% url 'about' %}"
+              >
+                About
+              </a>
+            </li>
+
+          {% else %}
+            <li 
+              class="nav-item"
+            >
+              <button
+                class="nav-link active" 
+                aria-current="page" 
+                hx-get="{% url 'groups' %}" 
+                hx-target="#bodypart"
+                hx-push-url="true"
+              >
+                Groups
+              </button>
+            </li>
+          
+            <li 
+              class="nav-item"
+            >
+              <button
+                class="nav-link active" 
+                aria-current="page" 
+                hx-get="{% url 'about' %}" 
+                hx-target="#bodypart"
+                hx-push-url="true"
+              >
+                About
+              </button>
+            </li>
           {% endif %}
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="{% url 'groups' %}">Groups</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="{% url 'about' %}">About</a>
-          </li>
         </ul>
         {% endif %}
 
@@ -84,8 +164,21 @@
         </div>
         {% else %}
 					<div class="form-inline my-2 my-lg-0">
-						<a href="{% url 'login' %}" class="btn btn-outline-success">Login</a>
-						<a href="{% url 'signup' %}" class="btn btn-primary ml-3">Signup</a>
+						<a 
+              href="{% url 'login' %}" 
+              class="btn btn-outline-success"
+            >
+              Login
+            </a>
+            
+						<a 
+              hx-get="{% url 'signup' %}" 
+              hx-target="#bodypart"
+              hx-push-url="true"
+              class="btn btn-primary ml-3"
+            >
+              Signup
+            </a>
 					</div>
 				{% endif %}
       </div>

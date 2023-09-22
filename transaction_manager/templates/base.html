@@ -63,14 +63,22 @@
     <!-- Favicon -->    
     <link rel="shortcut icon" href="{% static 'logo/favicon-32x32.png' %}" type="image">
 
+    <!-- HTMX cdn -->
+    <script 
+        src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.5/htmx.min.js" 
+        integrity="sha512-2NwoAICmYEIEuayBZdfd/cEvYGevbb1jezvQli/Iw052KfAA3NGrXAH2AY02cjt3gMdui5Q8nKauPYgVOE+pmg==" 
+        crossorigin="anonymous" 
+        referrerpolicy="no-referrer"
+    ></script>
+    
 </head>
 <body style="background-color: white;">
-    <div class="col-xl-11 m-auto">
+    <div class="col-xl-11 m-auto" >
         {% if not remove_navbar %}
             {% include 'nav.html' %}
         {% endif %}
 
-        <div id="bodypart">
+        <div id="bodypart" hx-history-elt>
             {% block body %}   
 
             {% endblock %}
