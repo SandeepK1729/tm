@@ -44,31 +44,38 @@
         <h1>Filter</h1>
 
         <label class="w-10" for="start_point">From</label>
-        <input class="w-30" name="start_point" id="start_point" type="date"></input>
+        <input 
+            class="w-30" 
+            name="start_point" 
+            id="start_point" 
+            type="date"
+            hx-get="{% url 'transactions monthly split' id=group.id %}"
+            hx-target="#bodypart"
+            hx-trigger="change"
+            hx-include="#start_point, #stop_point"
+            hx-push-url="true"
+        ></input>
 
         <br>
 
         <label class="w-10" for="stop_point">To</label>
-        <input class="w-30" name="stop_point" id="stop_point"   type="date"></input>
+        <input 
+            class="w-30" 
+            name="stop_point" 
+            id="stop_point"   
+            type="date"
+            hx-get="{% url 'transactions monthly split' id=group.id %}"
+            hx-target="#bodypart"
+            hx-trigger="change"
+            hx-include="#start_point, #stop_point"
+            hx-push-url="true"
+        ></input>
 
         <br>
 
 </div>
 
 <script> 
-    var today = new Date().toISOString().split('T')[0];
-    var e = $("#stop_point"), s = $("#start_point");
-
-    e.val("{{ stop_point }}");
-    s.val("{{ start_point }}");
-    
-    var changeURL = (event) => {
-        const start_point = encodeURIComponent(s.val());
-        const stop_point = encodeURIComponent(e.val());
-            
-        location.href = `monthly_split?start_point=${start_point}&stop_point=${stop_point}`;
-    }
-    s.on("change", changeURL);
-    e.on("change", changeURL);
-    
+    $("#start_point").val("{{ start_point }}");
+    $("#stop_point").val("{{ stop_point }}");
 </script>
