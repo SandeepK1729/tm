@@ -26,7 +26,7 @@ def groups_view(request):
             context['message'] = f"Group not created, because of {e}" 
 
     context['groups'] = request.user.groups.all().select_related('created_by').order_by('-id')
-    return render(request, "pages/groups.html", context)
+    return custom_render(request, "pages/groups.html", context)
 
 @login_required
 @group_member_login_required
