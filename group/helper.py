@@ -14,7 +14,7 @@ def get_template(template_path, is_htmx):
     template_modified_path = parent_path + ["components", template_name]
     return "/".join(template_modified_path)
 
-def custom_render(request, template_path, context):
+def custom_render(request, template_path, context = {}):
     is_htmx = request.META.get("HTTP_HX_REQUEST", 'false') == 'true'
 
     return render(request, get_template(template_path, is_htmx), context)

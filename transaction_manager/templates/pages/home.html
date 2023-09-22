@@ -1,7 +1,5 @@
 {% extends '../base.html' %}
 
 {% block body %}
-        <div class="container">
-                <h1>Hello, {{ user.get_full_name }}!</h1>
-        </div>
+        {% include 'pages/components/home_component.html' %}
 {% endblock body %}

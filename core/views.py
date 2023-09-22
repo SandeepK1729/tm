@@ -9,8 +9,7 @@ from group.helper       import custom_render
 
 @login_required
 def home(request):
-    print(request)
-    return render(request, 'pages/home.html')
+    return custom_render(request, 'pages/home.html')
 
 def signup(request):
     if request.method == 'POST':    
