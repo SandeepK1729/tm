@@ -40,10 +40,9 @@ jobs:
     - name: Build & apply migrations project
       run: |
         if [ $DB_type == local ]; then python manage.py migrate; fi
-        python manage.py migrate
-    
+      
         
-    - name: Test with django test
+    - name: Add env and Test with django test
       run: |
         # Set Django environment variables
         export DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY
