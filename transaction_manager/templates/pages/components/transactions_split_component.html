@@ -56,13 +56,13 @@
 </div>
 
 <script> 
-    let today = new Date().toISOString().split('T')[0];
-    let e = $("#stop_point"), s = $("#start_point");
+    var today = new Date().toISOString().split('T')[0];
+    var e = $("#stop_point"), s = $("#start_point");
 
     e.val("{{ stop_point }}");
     s.val("{{ start_point }}");
     
-    let changeURL = (event) => {
+    var changeURL = (event) => {
         const start_point = encodeURIComponent(s.val());
         const stop_point = encodeURIComponent(e.val());
             
