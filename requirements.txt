@@ -4,3 +4,4 @@ crispy-bootstrap5
 django-environ
 dj_database_url
 psycopg2-binary~=2.9.3
+htmx
