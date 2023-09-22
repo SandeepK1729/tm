@@ -6,7 +6,6 @@ from .models    import User
 from .forms     import UserCreationForm
 
 from group.helper       import custom_render
-from time               import sleep
 
 @login_required
 def home(request):

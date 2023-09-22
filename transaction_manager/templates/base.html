@@ -49,7 +49,56 @@
             display: none;
         }
         
-        {% block style %}{% endblock style %}
+        .checkbox-parent {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            margin-top: 20px;
+            justify-content: space-around;
+        }
+
+        article {
+            position: relative;
+            width: auto;
+            height: 40px;
+            float: left;
+            border: 2px solid #50bcf2;
+            border-radius: 6px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        
+        article div {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 10px;
+            transition: .1s ease;
+        }
+        
+        article input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        input[type=checkbox]:checked ~ div {
+            background-color: #50bcf2;
+            color: #fff;
+        }
+        
+        {% block style %}
+
+        {% endblock style %}
     </style>
     {% block head %}{% endblock %} 
 
