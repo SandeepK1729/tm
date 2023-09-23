@@ -8,7 +8,7 @@ from .decorators                    import group_member_login_required
 from core.models                    import User 
 from datetime                       import date
 
-from .helper                        import round_up
+from .helper                        import round_up, custom_render
 
 @login_required
 def groups_view(request):
@@ -26,7 +26,7 @@ def groups_view(request):
             context['message'] = f"Group not created, because of {e}" 
 
     context['groups'] = request.user.groups.all().select_related('created_by').order_by('-id')
-    return render(request, "pages/groups.html", context)
+    return custom_render(request, "pages/groups.html", context)
 
 @login_required
 @group_member_login_required
@@ -64,7 +64,7 @@ def group_view(request, group):
         ]
         context['message'] = ", ".join(filter(lambda x : x != "", contexts))
 
-    return render(request, "pages/group.html", context)
+    return custom_render(request, "pages/group.html", context)
 
 @login_required
 @group_member_login_required
@@ -90,7 +90,7 @@ def remove_group_member(request, group, username):
 @login_required
 @group_member_login_required
 def group_transactions_view(request, group):
-    return render(request, 'pages/transactions.html', {
+    return custom_render(request, 'pages/transactions.html', {
         'group' : group,
         'title' : f'{group.name} Group Transactions',
         'savings' : User.objects.get(username = "savings")
@@ -99,7 +99,7 @@ def group_transactions_view(request, group):
 @login_required
 @group_member_login_required
 def add_group_transaction_view(request, group):
-    return render(request, 'pages/add_transaction.html', {
+    return custom_render(request, 'pages/add_transaction.html', {
         'group' : group,
         'title' : f'Add Transaction in {group.name} Group',
         'is_individual_group' : len(group.get_members) == 1,
@@ -307,7 +307,7 @@ def group_transactions_monthly_split(request, group):
         
         data[member].pop('extra')
 
-    return render(request, 'pages/transactions_split.html', {
+    return custom_render(request, 'pages/transactions_split.html', {
         'data'                  : data,
         'total_amount'          : total_amount,
         'total_spend_amount'    : total_spend_amount,

@@ -1,0 +1,63 @@
+
+    <div class="container">
+        <div class="row justify-content-center align-items-center">
+        
+            <div class="col-xl-4 col-md-6 col-12">
+                <div class="card p-4 d-flex">
+                    <h1>{{ group.name }}</h1>
+
+                    <div  class="card-body ">
+                        <div class="card-title"> Members </div>
+                        <div class="card-text">
+                            <ul class="list-group d-flex">
+                                {% for member in group.get_members %}
+                                    <div>
+                                        <li class="list-group-item mt-0 d-flex justify-content-center d-inline rounded-lg border border-secondary  rounded"> 
+                                            {% if member == user %} You {% else %} {{ member.username }} {% endif %} 
+                                            {% if member == group.created_by %} (Owner) {% endif %}
+                                            {% if member == group.maintainer %} (Maintainer) {% endif %}
+                                            
+                                            {% comment %} {% if user == group.created_by and member != user %} 
+                                                - <span
+                                                    onClick="callRemove(this)"
+                                                    class="d-flex d-inline w-10" 
+                                                    id="{% url 'remove group member' group.id member.username %}"
+                                                >X<span/>
+                                            {% endif %} {% endcomment %}
+                                        </li>
+                                        
+                                    </div>
+                                {% endfor %}
+
+                                {% if user == group.created_by %}
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <div class="w-100">
+                                            <p class="text-danger mt-4"> {{ message }} </p>
+                                            <input type="text" class="text-center form-control list-group-item" name="username" id="username" aria-describedby="helpId" placeholder="list of usernames">
+                                            <span class="input-group-btn" style="width:0px;"></span>
+                
+                                            <input class="form-control btn btn-outline-primary mt-1" type="submit" value="Add member">
+                                        </div>
+                                    </form>
+                                {% endif %}
+                                
+                            </ul>   
+                        </div>     
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function callRemove(e) {
+            console.log(e.id);
+            console.log(location.url)
+            if(confirm("Do you want to remove this member ?")) {
+                location.href = e.id;
+            }
+            
+        }
+    </script>
+            

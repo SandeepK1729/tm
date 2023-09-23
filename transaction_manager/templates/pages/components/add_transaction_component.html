@@ -1,0 +1,158 @@
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-xl-4 col-md-6 col-12">
+            <div class="card p-3 col d-flex ">
+                <h1 class="fs-2">Add New Transaction</h1>
+
+                <div  class="card-body ">
+                    <div class="card-text">
+                        <form action="{% url 'transactions api' group.id %}" method="POST" class="d-flex flex-column">
+
+                            <div class="form-group">
+                                <input type="hidden" class="form-control" name="transaction_id" id="transaction_id" value="{% if transaction %}{{ transaction.id }}{% else %}0{% endif %}">
+                            </div>
+
+                            {% csrf_token %}
+                            
+                            <div class="form-group">
+                                <label for="for">For</label>
+                                <input type="text" class="form-control"  required autofocus name="for" id="for" placeholder="transaction for" value="{{ transaction.transaction_for }}">
+                            </div>
+
+                            <div class="form-group mt-2 md-2">
+                                <label for="for">By</label>
+                                
+                                <select  required autofocus class="" name="by" id="by">
+                                    {% if user != group.maintainer %}
+                                        <option value="{{ savings.username }}"  class="text-center" {% if transaction.by == savings %}selected{% endif %}>{{ savings.username }}</option>
+                                    {% endif %}
+                                    {% for member in group.get_members %}
+                                        {% if member != user %}
+                                            <option value="{{ member.username }}"  class="text-center" {% if transaction.by == member %}selected{% endif %}>{{ member.username }}</option>
+                                        {% else %}
+                                            {% if is_individual_group or user == group.maintainer %}
+                                                <option value="{{ user.username }}"    class="text-center" {% if transaction.by == member %}selected{% endif %}> You </option>  
+                                            {% endif %}  
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+    
+                            <div class="form-group">
+                                <label for="to">To</label>
+                                <input type="text"  required autofocus class="form-control" name="to" id="to" placeholder="transaction to" value="{{ transaction.to }}">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="on">On</label>
+                                <input type="date" required autofocus class="form-control" name="on" id="on" placeholder="transaction on" value="{{ transaction.on|date:"Y-m-d"   }}">
+                            </div>
+
+                            <div class="form-group mt-2">
+                                <label for="amount">Amount</label>
+                                <input type="number" required autofocus class="form-control" name="amount" id="amount" placeholder="transaction amount" value="{{ transaction.amount }}">
+                            </div>
+
+                            {% if user == group.maintainer %}
+                                <div class="form-group mt-2">
+                                    <label for="saving">Is it for savings : </label>
+                                    <input 
+                                        type="checkbox" 
+                                        name="is_it_for_savings"
+                                        {% if transaction.for == savings.username %} checked {% endif %}
+                                        id="saving_transaction"
+                                        
+                                    >
+                                </div>
+                            {% endif %}
+                            
+                            <div class="form-group show_list" >
+                                <label for="share_to">Share To</label>
+
+                                <div class="checkbox-parent">
+                                    <article>
+                                        <input 
+                                            type="checkbox" 
+                                            id="all_options"
+                                        />
+                                        <div>
+                                            <span>
+                                                All
+                                            </span>
+                                        </div>
+                                    </article>
+                                    {% for member in group.get_members %}
+                                        <article>
+                                            <input 
+                                                type="checkbox" 
+                                                name="share_to" 
+                                                class="share_options"
+                                                value="{{ member.username }}"
+                                                {% if member in transaction.share_to.all or member in group.get_active_members %}
+                                                        checked
+                                                {% endif %}
+                                            />
+                                            <div>
+                                                <span>
+                                                    {{ member.username }}
+                                                </span>
+                                            </div>
+                                        </article>
+                                    {% endfor %}
+                                </div>
+                                        
+                            </div>   
+
+                            <input type="submit" value="{% if transaction %}Update{% else %}Add{% endif %}" class="btn btn-outline-primary mt-2 justify-content-center">
+                        </form>
+                    </div>     
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(() => {
+        let today = new Date().toISOString().split('T')[0];
+
+        {% if not transaction %}
+            $("#on").val(today);
+        {% endif %}
+
+        function change_all_checkboxes() {
+            var isChecked = $("#all_options").is(':checked');
+            $('.share_options').prop('checked', isChecked);
+        }
+        
+        $('#all_options').change(change_all_checkboxes);
+        
+        let is_toggle = $("#saving_transaction");
+        let for_input = $("#for");
+        let to_input  = $("#to");
+        let show_list = $(".show_list");
+
+        $("#saving_transaction").on("change", function toggleTransactionFor() {
+            
+            if(is_toggle.is(":checked")) {
+                for_input.val("{{ savings.username }}");
+                for_input.attr('disabled', 'disabled');
+
+                to_input.val("{{ savings.username }}");
+                to_input.attr('disabled', 'disabled');
+
+                show_list.hide();
+            }
+            else {
+                for_input.val("");
+                for_input.removeAttr('disabled')
+
+                to_input.val("");
+                to_input.removeAttr('disabled')
+
+                show_list.show();
+            }
+        });
+
+    })
+</script>
