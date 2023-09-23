@@ -1,6 +1,7 @@
 from django.shortcuts               import render, HttpResponse, redirect, reverse
 from django.contrib.auth.decorators import login_required
 from django.core                    import serializers
+from django.core.paginator          import Paginator
 
 from .models                        import Group, Transaction
 from .decorators                    import group_member_login_required
@@ -217,13 +218,16 @@ def api_group_transactions_view(request, group):
             '-on', '-id'
         )
 
-    print(transactions.query, "\n" * 3)
-    for transaction in transactions:
-        print(transaction)
+    page_number = request.GET.get('page', 1)
+
+    paginator = Paginator(transactions, 10)
+    page = paginator.get_page(page_number)
         
     return render(request, "pages/components/transactions_rows_component.html", {
         'transactions' : transactions,
         'group' : group,
+        'page' : page,
+        'is_empty_page' : page.paginator.count == 0,
     })
 
     # except Exception as e:
