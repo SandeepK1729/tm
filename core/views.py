@@ -1,16 +1,15 @@
-from django.shortcuts                   import render, redirect
+from django.shortcuts                   import render, redirect, HttpResponse
 from django.contrib.auth                import login as auth_login
 from django.contrib.auth.decorators     import login_required
 
 from .models    import User
 from .forms     import UserCreationForm
 
-from django.shortcuts import HttpResponse
+from group.helper       import custom_render
 
 @login_required
 def home(request):
-    print(request)
-    return render(request, 'pages/home.html')
+    return custom_render(request, 'pages/home.html')
 
 def signup(request):
     if request.method == 'POST':    
@@ -22,11 +21,10 @@ def signup(request):
     else:
         form = UserCreationForm()
 
-    return render(request, 'registration/signup.html', {
+    return custom_render(request, 'registration/signup.html', {
         'form' : form,
         'title' : 'Sign up',
     })
 
-
 def about(request):
-    return render(request, "pages/about.html", {'title' : 'About'})
+    return custom_render(request, "pages/about.html", {'title' : 'About'})
