@@ -11,8 +11,18 @@
                     <th scope="col">For</th>
                     <th scope="col">
                         <label for="username">By</label>
-                        <select class="" name="username" id="username" autofocus class="rounded">
-                            <option value="*" class="text-center">All users</option>
+                        <select 
+                            id="filter_by" 
+                            name="username"
+                            autofocus 
+                            class="rounded"
+
+                            hx-get="{% url 'transactions api' group.id %}"
+                            hx-trigger="change delay:1000ms changed"
+                            hx-vals='js:{ start_date : start_point.val(), stop_date : stop_point.val(), filter_by : $("#filter_by").val(), share_to : $("#share_to").val() }'
+                            hx-target="#transactions_list"
+                        >
+                            <option value="all" class="text-center">All users</option>
                             <option value="{{ savings.username }}" class="text-center">savings</option>
                             {% for member in group.get_members %}
                                 <option value="{{ member.username }}"  class="text-center">{{ member.username }}</option>
@@ -23,27 +33,79 @@
                     <th scope="col">Amount</th>
                     <th scope="col">
                         <label class="w-10" for="start_point">From</label>
-                        <input class="w-30" name="start_point" id="start_point" type="date"></input>
+                        <input 
+                            class="w-30" 
+                            name="start_point" 
+                            id="start_point" 
+                            type="date"
+                            
+                            hx-get="{% url 'transactions api' group.id %}"
+                            hx-trigger="change delay:500ms changed"
+                            hx-vals='js:{ start_date : start_point.val(), stop_date : stop_point.val(), filter_by : $("#filter_by").val(), share_to : $("#share_to").val() }'
+                            hx-target="#transactions_list"
+                        ></input>
+
                         <br>
+
                         <label class="w-10" for="stop_point">To</label>
-                        <input class="w-30" name="stop_point" id="stop_point"   type="date"></input>
+                        <input 
+                            class="w-30" 
+                            name="stop_point" 
+                            id="stop_point"   
+                            type="date"
+                            
+                            hx-get="{% url 'transactions api' group.id %}"
+                            hx-trigger="change delay:500ms changed"
+                            hx-vals='js:{ start_date : start_point.val(), stop_date : stop_point.val(), filter_by : $("#filter_by").val(), share_to : $("#share_to").val() }'
+                            hx-target="#transactions_list"                      
+                        ></input>
 
                     </th>
                     <th scope="col">
                         <label for="share_to">Share To</label>
-                        <select class="" name="share_to" id="share_to" autofocus class="rounded">
-                            <option value="*" class="text-center">All users</option>
+                        <select 
+                            id="share_to" 
+                            name="share_to" 
+                            autofocus 
+                            class="rounded"
+
+                            hx-get="{% url 'transactions api' group.id %}"
+                            hx-trigger="change changed"
+                            hx-vals='js:{ start_date : start_point.val(), stop_date : stop_point.val(), filter_by : $("#filter_by").val(), share_to : $("#share_to").val() }'
+                            hx-target="#transactions_list"
+                        >
+                            <option value="all" class="text-center">All users</option>
                             {% for member in group.get_members %}
                                 <option value="{{ member.username }}"  class="text-center">{{ member.username }}</option>
                             {% endfor %}
                         </select>
                     </th>
                     <th scope="col">
-                        Options <button class="btn btn-light w-10" type="text" onclick="on_filtering()"><i class="fa-solid fa-rotate"></i></button>
+                        Options 
+                        <button 
+                            class="btn btn-light w-10" 
+                            type="text" 
+                            
+                            hx-get="{% url 'transactions api' group.id %}"
+                            hx-trigger="click"
+                            hx-vals='js:{ start_date : start_point.val(), stop_date : stop_point.val(), filter_by : $("#filter_by").val(), share_to : $("#share_to").val() }'
+                            hx-target="#transactions_list"
+                        >
+                            <i class="fa-solid fa-rotate"></i>
+                        </button>
                     </th>
                 </tr>
             </thead>
-            <tbody id = "transactions_list">
+            <tbody 
+                id = "transactions_list"
+                hx-get="{% url 'transactions api' group.id %}"
+                hx-trigger="load, click"
+                hx-vals='js:{ start_date : start_point.val(), stop_date : stop_point.val() }'
+                hx-select="tbody > tr"
+            >
+                <tr>
+                    <td colspan="8" class="text-center">Loading...</td>
+                </tr>
             </tbody>
         </table>
 
@@ -75,115 +137,11 @@
     stop_point.val(today);
     start_point.val(today.substr(0, 8) + "01");
 
-    var data = [];
-    var username = $("#username");
-    var share_to = $("#share_to");
-
     $(document).on('htmx:afterSwap', function (event) {
         if (event.target.matches('#savings_amount')) {
             alert('Data has been updated!');
         }
     });
-    
-
-    async function fetch_data() {
-        console.log("fetching data");
-        $("#transactions_list").html(`<tr><td colspan="8" class="text-center">loading ... please wait</td></tr>`);
-        await fetch(`{% url 'transactions api' group.id %}?start_date=${start_point.val()}&stop_date=${stop_point.val()}`)
-        .then(res => res.json())
-        .then(res => {
-            data = res;
-        });
-        console.log("data fetched");
-    }
-    
-    function load_data() {
-        $("#transactions_list").html("");
-        var j = 0;
-        for(var i = 0; i < data.length; i++) {
-            if(username.val() != "*" && data[i].fields.by != username.val())    continue;
-            
-            if(share_to.val() != "*") {
-                var b = false;
-                for(var k = 0; k < data[i].fields.share_to.length; k++) {
-                    if(data[i].fields.share_to[k] == share_to.val()) {
-                        b = true;
-                        break;
-                    }
-                }
-                if(!b) continue;
-            }
-
-            j += 1;
-            var is_owner = (data[i].fields.added_by == "{{ user.username }}");
-            
-            var tr = document.createElement('tr');
-            tr.classList.add(data[i].fields.transaction_for != "savings" ? "text-dark" : "text-success");
-
-            var re = `
-                <td scope="row"
-                    > ${ is_owner ? "You" : data[i].fields.added_by} </td>
-                <td> ${data[i].fields.transaction_for} </td>
-                <td> ${data[i].fields.by} </td>
-                <td> ${data[i].fields.to} </td>
-                <td> ${data[i].fields.amount} </td>
-                <td> ${data[i].fields.on.substr(8, 2)}-${data[i].fields.on.substr(5, 2)}-${data[i].fields.on.substr(0, 4)} </td>
-                <td> ${data[i].fields.share_to.length}</td>
-                
-            `;
-            
-            if(is_owner) {
-                re += `
-                    <td class="" style="gap:1px;height:100%;display:flex;">
-                        <a class="btn btn-success w-50" href="{% url 'add transaction' group.id %}?id=${data[i].pk}" >
-                            <i class="fa-regular fa-pen-to-square"></i>
-                        </a>
-                        <form class="w-50" action="{% url 'transactions api' group.id %}" method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="transaction_id" value="${data[i].pk}"/>
-                            <input type="hidden" name="action" value="delete"/>
-                            <button class="btn btn-danger w-100" type="submit"> 
-                                <i class="fa-solid fa-trash"></i>
-                            <button/>
-                        </form>
-                    </td>
-                `;
-            } else {
-                re += `
-                    <td></td>
-                `;
-            }
-            tr.innerHTML = re;
-            
-            $("#transactions_list").append(tr);
-        }
-
-        if(j == 0) {
-            $("#transactions_list").html(`<tr><td colspan="8" class="text-center">No transactions found..</td></tr>`);
-        }
-    }
-    
-    async function on_filtering() {
-        await fetch_data();
-
-        load_data();
-    }
-
-    share_to.change(load_data);
-    username.change(load_data);
-    
-    start_point.change(on_filtering);
-    stop_point.change(on_filtering);
-
-
-    $(document).ready(function() {
-        console.log( "ready!" );
-        on_filtering();
-
-        username.focus();
-
-        $("#recalculate_savings").on("click", update_savings);
-     });
 
 </script>
     

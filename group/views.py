@@ -110,6 +110,14 @@ def add_group_transaction_view(request, group):
 @login_required
 @group_member_login_required
 def api_group_transactions_view(request, group):
+    if request.method == "DELETE":
+        transaction_id = int(request.POST.get("transaction_id"))
+        transaction = Transaction.objects.get(id = transaction_id)
+
+        if request.POST.get("action") == "delete":
+            transaction.delete()
+            return redirect(to = f'/group/{group.id}/transactions')
+
     if request.method == "POST":
         request_POST = {x : y for x, y in request.POST.lists()}
         request.POST = request.POST.dict()
@@ -169,39 +177,57 @@ def api_group_transactions_view(request, group):
 
         return redirect(to = f'/group/{group.id}/transactions')
 
-    try:
-        # date based filtering on transactions
-        # start point
-        start_point = request.GET.get('start_date', '*')
+    # try:
+    # date based filtering on transactions
+    # start point
+    start_point = request.GET.get('start_date', '*')
 
-        if start_point != "*":
-            start_point = date(*[int(x) for x in start_point.split('-')])
-        
-        # stop point
-        stop_point  = request.GET.get('stop_date', '*')
+    if start_point != "*":
+        start_point = date(*[int(x) for x in start_point.split('-')])
+    
+    # stop point
+    stop_point  = request.GET.get('stop_date', '*')
 
-        if stop_point != "*":
-            stop_point = date(*[int(x) for x in stop_point.split('-')])
-        
-        transactions = group.transactions.filter(
-                on__range=[start_point, stop_point]
-            ).select_related(
-                'by', 'added_by'
-            ).prefetch_related(
-                'share_to'
-            ).order_by(
-                '-on', '-id'
-            )
-
-        json = serializers.serialize(
-            "json", 
-            transactions,
-            use_natural_foreign_keys = True
+    if stop_point != "*":
+        stop_point = date(*[int(x) for x in stop_point.split('-')])
+    
+    transactions = group.transactions.filter(
+            on__range=[start_point, stop_point]
         )
-        return HttpResponse(json) 
+    
+    # filter by
+    filter_by = request.GET.get('filter_by', 'all')
+    if filter_by != 'all':
+        transactions = transactions.filter(
+            by__username = filter_by
+        )
 
-    except Exception as e:
-        return HttpResponse("")
+    # share to 
+    share_to = request.GET.get('share_to', 'all')
+    if share_to != 'all':
+        transactions = transactions.filter(
+            share_to__username = share_to
+        )
+    
+    transactions = transactions.select_related(
+            'by', 'added_by'
+        ).prefetch_related(
+            'share_to'
+        ).order_by(
+            '-on', '-id'
+        )
+
+    print(transactions.query, "\n" * 3)
+    for transaction in transactions:
+        print(transaction)
+        
+    return render(request, "pages/components/transactions_rows_component.html", {
+        'transactions' : transactions,
+        'group' : group,
+    })
+
+    # except Exception as e:
+    #     return HttpResponse(f"error, {e}")
 
 @login_required
 @group_member_login_required
