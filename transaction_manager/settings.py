@@ -117,15 +117,26 @@ WSGI_APPLICATION = 'transaction_manager.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-dbs = {
-    'local' : {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'transaction_manager' / 'db.sqlite3',
-    },
-    'online' : dj_database_url.parse(env('DATABASE_URL'))
-}
+
+def get_DB(DB_env):
+
+    # production
+    if DB_env == 'online' or DB_env == 'production':
+        return dj_database_url.parse(env('DATABASE_URL'))
+    
+    # development, qa and testing
+    elif DB_env in ['dev', 'development', 'qa', 'quality_assurance', 'test', 'testing']:
+        return dj_database_url.parse(env('DATABASE_URL_QA'))
+
+    # local
+    return {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'transaction_manager' / 'db.sqlite3',
+            }
+
+
 DATABASES = {
-    'default': dbs[env('DB_type', default = 'online')]
+    'default': get_DB(env('DB_type', default = 'online'))
 }
 
 # Password validation
