@@ -49,7 +49,15 @@
 
         <br>
         <p class="text-center"> if you think, savings amount is not correct, you can 
-            <button id="recalculate_savings" class="btn btn" aria-current="page" data-bs-toggle="modal" data-bs-target="#savingsModal">
+            <button 
+                id="recalculate_savings" 
+                class="btn btn" 
+                aria-current="page" 
+                data-bs-toggle="modal" 
+                data-bs-target="#savingsModal"
+                hx-get="{% url 'recalculate savings' group.id %}"
+                hx-target="#savings_amount"
+            >
                 click here    
                 <i class="fas fa-sync-alt"></i>
             </button> to reload 
@@ -71,19 +79,12 @@
     var username = $("#username");
     var share_to = $("#share_to");
 
-    var update_savings = () => {
-        $.ajax({
-            url : "{% url 'recalculate savings' group.id %}",
-            type : "GET",
-            success : (json) => {
-                alert("savings recalculated successfully");
-                $("#savings_amount").html(`Savings : ${json}`);
-            },
-            failure: () => {
-                alert("savings recalculation failed");
-            }
-        });
-    }
+    $(document).on('htmx:afterSwap', function (event) {
+        if (event.target.matches('#savings_amount')) {
+            alert('Data has been updated!');
+        }
+    });
+    
 
     async function fetch_data() {
         console.log("fetching data");
