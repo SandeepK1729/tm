@@ -1,7 +1,13 @@
 {% for transaction in page.object_list %}
 
     {% comment %} transaction row {% endcomment %}
-    <tr>
+    <tr
+        {% if transaction.transaction_for == "savings" %}
+            class="text-success"
+        {% else %}
+            class="text-primary"
+        {% endif %}
+    >
         <td 
             scope="row"
         > 
