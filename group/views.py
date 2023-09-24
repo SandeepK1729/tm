@@ -94,7 +94,9 @@ def group_transactions_view(request, group):
     return custom_render(request, 'pages/transactions.html', {
         'group' : group,
         'title' : f'{group.name} Group Transactions',
-        'savings' : User.objects.get(username = "savings")
+        'savings' : User.objects.get(username = "savings"),
+        'start_date' : date.today().replace(day=1),
+        'stop_date' : date.today()
     })
 
 @login_required
@@ -185,12 +187,16 @@ def api_group_transactions_view(request, group):
 
     if start_point != "*":
         start_point = date(*[int(x) for x in start_point.split('-')])
+    else:
+        start_point = date.today().replace(day=1)
     
     # stop point
     stop_point  = request.GET.get('stop_date', '*')
 
     if stop_point != "*":
         stop_point = date(*[int(x) for x in stop_point.split('-')])
+    else:
+        stop_point = date.today()
     
     transactions = group.transactions.filter(
             on__range=[start_point, stop_point]
@@ -222,12 +228,12 @@ def api_group_transactions_view(request, group):
 
     paginator = Paginator(transactions, 10)
     page = paginator.get_page(page_number)
-        
+    
     return render(request, "pages/components/transactions_rows_component.html", {
         'transactions' : transactions,
         'group' : group,
         'page' : page,
-        'is_empty_page' : page.paginator.count == 0,
+        'is_empty_page' : page.paginator.count == 0
     })
 
     # except Exception as e:
