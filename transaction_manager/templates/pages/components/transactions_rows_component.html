@@ -1,0 +1,79 @@
+{% for transaction in page.object_list %}
+
+    {% comment %} transaction row {% endcomment %}
+    <tr>
+        <td 
+            scope="row"
+        > 
+            {% if added_by == user %} You {% else %} {{ transaction.added_by.username }} {% endif %}
+        </td>
+        <td> 
+            {{transaction.transaction_for }} 
+        </td>
+        <td> 
+            {{transaction.by.username }} 
+        </td>
+        <td> 
+            {{transaction.to }} 
+        </td>
+        <td> 
+            {{transaction.amount }} 
+        </td>
+        <td> 
+            {{ transaction.on|date:"d-m-Y" }} 
+        </td>
+        <td> 
+            {{transaction.share_to.count }}
+        </td>
+
+        {% comment %} action buttons {% endcomment %}
+        <td style="gap:1px;height:100%;display:flex;">
+
+            {% if transaction.added_by == user %}
+                <a 
+                    class="btn btn-success w-50" 
+                    hx-get="{% url 'add transaction' group.id %}"
+                    hx-vals='{ "id" : "{{ transaction.pk }}" }'
+                    hx-target="#bodypart"
+                    hx-push-url="true"
+                >
+                    <i class="fa-regular fa-pen-to-square"></i>
+                </a>
+
+                <a
+                    class="btn btn-danger w-50"
+                    hx-delete="{% url 'transactions api' group.id %}"
+                    hx-include='{ "transaction_id": "{{ transaction.pk }}" }'
+                >
+                    <i class="fa-solid fa-trash"></i>
+                </a>
+            {% endif %}
+        </td>
+    </tr>
+
+{% endfor %}
+
+{% if page.has_next %}
+    <tr>
+        <td 
+            colspan="8" 
+            class="text-center"
+
+            hx-get="{% url 'transactions api' group.id %}"
+            hx-trigger="revealed"
+            hx-vals='js:{ start_date : $("#start_point").val(), stop_date : $("#stop_point").val(), filter_by : $("#filter_by").val(), share_to : $("#share_to").val(), page : {{ page.next_page_number }} }'
+            hx-target="closest tr"
+            hx-swap="outerHTML"
+        >
+            Loading...
+        </td>
+    </tr>
+{% endif %}
+
+{% if is_empty_page %}
+    <tr>
+        <td colspan="8" class="text-center">
+            <h3 class="text-muted">No transactions yet</h3>
+        </td>
+    </tr>
+{% endif %}
