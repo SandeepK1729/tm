@@ -13,13 +13,12 @@
                         <label for="username">By</label>
                         <select 
                             id="filter_by" 
-                            name="username"
                             autofocus 
                             class="rounded"
 
+                            hx-trigger="change changed"
                             hx-get="{% url 'transactions api' group.id %}"
-                            hx-trigger="change delay:1000ms changed"
-                            hx-vals='js:{ start_date : start_point.val(), stop_date : $("#stop_point").val(), filter_by : $("#filter_by").val(), share_to : $("#share_to").val() }'
+                            hx-vals='js:{ start_date : $("#start_point").val(), stop_date : $("#stop_point").val(), filter_by : $("#filter_by").val(), share_to : $("#share_to").val() }'
                             hx-target="#transactions_list"
                         >
                             <option value="all" class="text-center">All users</option>
