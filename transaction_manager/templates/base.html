@@ -133,9 +133,14 @@
             {% endblock %}
         </div>
     </div>
-     {% comment %} <img src="{% static 'serial_load.gif' %}" alt="can't show" id="loader" class="w-100 h-100 " style="postion:absoule;top:0;left:0">  {% endcomment %}
-
     
+     <img 
+        src="{% static 'gifs/analog.gif' %}" 
+        alt="can't show" 
+        id="loader" 
+        class="m-auto"
+        style="postion:absoule;top:0;left:0"
+    > 
      
     
 
@@ -160,6 +165,26 @@
         });
 
         {% block script %}{% endblock script %}
+
+        $(document).on('htmx:configRequest', function (event) {
+            if(event.detail.target.matches('#transactions_list')){
+                $('#transactions_list').html('<tr><td colspan="8" class="text-center">Loading...</td></tr>');
+            }
+            else if(event.detail.target.matches("#bodypart")){
+                $("#bodypart").fadeOut();
+                $("#loader").fadeIn();
+            }
+        });
+
+        $(document).on('htmx:afterSwap', function (event) {
+            if (event.target.matches('#savings_amount')) {
+                alert('Data has been updated!');
+            }
+            else if(event.detail.target.matches("#bodypart")){
+                $("#loader").fadeOut();
+                $("#bodypart").fadeIn();
+            }
+        });
 
     </script>
 </body>
