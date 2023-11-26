@@ -23,15 +23,17 @@
                                 <label for="for">By</label>
                                 
                                 <select  required autofocus class="" name="by" id="by">
-                                    {% if user != group.maintainer %}
+                                    {% if user != group.maintainer or group.is_maintainer_can_add_to_savings %}
                                         <option value="{{ savings.username }}"  class="text-center" {% if transaction.by == savings %}selected{% endif %}>{{ savings.username }}</option>
                                     {% endif %}
                                     {% for member in group.get_members %}
                                         {% if member != user %}
                                             <option value="{{ member.username }}"  class="text-center" {% if transaction.by == member %}selected{% endif %}>{{ member.username }}</option>
                                         {% else %}
-                                            {% if is_individual_group or user == group.maintainer %}
+                                            {% if is_individual_group %}
                                                 <option value="{{ user.username }}"    class="text-center" {% if transaction.by == member %}selected{% endif %}> You </option>  
+                                            {% elif user == group.maintainer and group.is_maintainer_can_add_own_transaction %}   
+                                                <option value="{{ user.username }}"    class="text-center" {% if transaction.by == member %}selected{% endif %}> You </option>
                                             {% endif %}  
                                         {% endif %}
                                     {% endfor %}
