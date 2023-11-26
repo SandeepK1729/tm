@@ -30,6 +30,8 @@ class Group(models.Model):
                     blank = True,
                     null = True
                 )
+    is_maintainer_can_add_to_savings = models.BooleanField(default = False, verbose_name = "Maintainer can add to savings")
+    is_maintainer_can_add_own_transaction = models.BooleanField(default = False, verbose_name = "Maintainer can add own transaction")
     inactive_members = models.ManyToManyField("core.User", related_name = "inactive_groups", blank = True)
     
     def __str__(self):

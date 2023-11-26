@@ -43,14 +43,22 @@
                 >
                     <i class="fa-regular fa-pen-to-square"></i>
                 </a>
-
-                <a
-                    class="btn btn-danger w-50"
-                    hx-delete="{% url 'transactions api' group.id %}"
-                    hx-include='{ "transaction_id": "{{ transaction.pk }}" }'
+                <form 
+                    class="w-50"
+                    hx-vals='{"transaction_id":"{{ transaction.pk }}", "action":"delete"}'
+                    hx-confirm="Are you sure you want to delete this transaction ?"
                 >
-                    <i class="fa-solid fa-trash"></i>
-                </a>
+                    {% csrf_token %}
+                    <button
+                        hx-post="{% url 'transactions api' group.id %}"
+                        class="btn btn-danger"
+                        type="submit"
+                        hx-swap="innerHTML"
+                        hx-target="#bodypart"
+                    >
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </form>
             {% endif %}
         </td>
     </tr>

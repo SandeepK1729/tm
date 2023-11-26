@@ -113,12 +113,13 @@ def add_group_transaction_view(request, group):
 @login_required
 @group_member_login_required
 def api_group_transactions_view(request, group):
-    if request.method == "DELETE":
+    if request.method == "POST" and request.POST.get("action") == "delete":
         transaction_id = int(request.POST.get("transaction_id"))
         transaction = Transaction.objects.get(id = transaction_id)
 
-        if request.POST.get("action") == "delete":
+        if transaction is not None:
             transaction.delete()
+            group.update_savings_amount()
             return redirect(to = f'/group/{group.id}/transactions')
 
     if request.method == "POST":
@@ -174,9 +175,9 @@ def api_group_transactions_view(request, group):
             savings_account_balance += change_amount
         if transaction.by.username == "savings":
             savings_account_balance -= change_amount
-
         group.savings = savings_account_balance
         group.save()
+        group.update_savings_amount()
 
         return redirect(to = f'/group/{group.id}/transactions')
 
